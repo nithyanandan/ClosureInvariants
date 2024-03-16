@@ -1,0 +1,4 @@
+From empty (main):
+=================
+
+(*) Initial commit of repository

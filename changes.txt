@@ -1,3 +1,8 @@
+From bc4770f (main):
+===================
+
+(*) Add .gitignore to repository
+
 From ac2f0c0 (main):
 ===================
 

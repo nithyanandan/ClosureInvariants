@@ -99,7 +99,13 @@ def advariants_on_list(advariant1, advariant2, advariant3):
     return NP.concatenate([advariant1, advariant2, advariant3], axis=0)[NP.newaxis,...]
 
 @pytest.fixture
-def vectors_from_advariants(advariants_on_list):
+def vectors_from_advariants():
     return NP.asarray([[[ -8.5 +5.j,  -8.5 +5.j, 3.5+3.5j, 4.5-4.5j],
                         [-44.5+41.j, -44.5+41.j, 3.5+3.5j, 4.5-4.5j],
                         [-80.5+77.j, -80.5+77.j, 3.5+3.5j, 4.5-4.5j]]])
+
+@pytest.fixture
+def minkowski_dot_products():
+    mdp_22 = NP.array([[-32.5, -32.5, 8., 8., -32.5, 8., 8., -32.5, -32.5, -32.5]])
+    mdp_21 = NP.array([[-32.5, 8., -32.5, 8., 8., -32.5, 8., -32.5]])
+    return (mdp_22, mdp_21)

@@ -332,3 +332,72 @@ def vector_from_advariant(advars):
         if advars.shape[-1] != advars.shape[-2]:
             raise ValueError('Advariants must be 1x1 matrices in the last two dimensions')
         return advars # GL(1,C) already    
+    
+def minkowski_dot(z1_4v: NP.ndarray, z2_4v: NP.ndarray = None) -> NP.ndarray:
+    """
+    Compute Minkowski dot products between two sets of 4-vectors.
+
+    This function computes dot products between two sets of 4-vectors using the Minkowski metric. 
+    The 4-vectors can either come from advariants or be provided directly.
+
+    Parameters:
+    z1_4v : numpy.ndarray
+        A numpy array representing the first set of complex 4-vectors. Each 4-vector must have shape (...,4).
+    z2_4v : numpy.ndarray, optional
+        A numpy array representing the second set of complex 4-vectors. 
+        If not provided, the function computes dot products of the first set with itself. 
+        Each 4-vector must have the same shape as the 4-vectors in z1_4v.
+
+    Returns:
+    numpy.ndarray
+        A numpy array containing the Minkowski dot products. 
+        If z2_4v is None, the output has shape (..., 2M*(2M+1)//2), where M is the number of complex 4-vectors in z1_4v. 
+        If z2_4v is provided, the output has shape (..., 2M*2N), where M and N are the numbers of complex 4-vectors in z1_4v and z2_4v, respectively.
+
+    Examples:
+    >>> import numpy as NP
+    >>> z1_4v = NP.array([[ -8.5 +5.j, -8.5 +5.j, 3.5 +3.5j, 4.5 -4.5j]
+                          [-44.5+41.j, -44.5+41.j, 3.5 +3.5j, 4.5 -4.5j])  # A set of 4-vectors
+    >>> minkowski_dot(z1_4v)
+    array([-32.5, -32.5, 8., 8., -32.5, 8., 8., -32.5, -32.5, -32.5])
+
+    >>> z2_4v = NP.array([[-80.5+77.j, -80.5+77.j, 3.5 +3.5j, 4.5 -4.5j]])  # Another set of 4-vectors
+    >>> minkowski_dot(z1_4v, z2_4v)
+    array([-32.5, 8., -32.5, 8., 8., -32.5, 8., -32.5])
+    """
+    if not isinstance(z1_4v, NP.ndarray):
+        raise TypeError('Input z1_4v must be a numpy array')
+    shape1 = NP.array(z1_4v.shape)
+    if shape1[-1] != 4:
+        raise ValueError('The dimension of last axis in input z1_4v must equal 4 to be a valid 4-vector')
+    
+    metric = NP.array([[1,0,0,0], 
+                       [0,-1,0,0], 
+                       [0,0,-1,0], 
+                       [0,0,0,-1]], dtype=float).reshape(-1,4) # Minkowski metric
+    
+    x1_4v = z1_4v.real # shape=(...,M,4)
+    y1_4v = z1_4v.imag # shape=(...,M,4)
+    stack1_4v = NP.concatenate([x1_4v, y1_4v], axis=-2) # shape=(...,2M,4)
+    if z2_4v is None:
+        stack2_4v = NP.copy(stack1_4v) # shape=(...,2M,4)
+    else:
+        if not isinstance(z2_4v, NP.ndarray):
+            raise TypeError('Input z2_4v must be a numpy array')
+        shape2 = NP.array(z2_4v.shape)
+        if not NP.array_equal(shape1[-1], shape2[-1]):
+            raise ValueError('The dimension of last axis in inputs z1_4v and z2_4v must match')
+        x2_4v = z2_4v.real # shape=(...,N,4)
+        y2_4v = z2_4v.imag # shape=(...,N,4)
+        stack2_4v = NP.concatenate([x2_4v, y2_4v], axis=-2) # shape=(...,2N,4)
+
+    mdp = NP.einsum('...ij,jk,...lk->...il', stack1_4v, metric, stack2_4v) # shape=(...2M,2N)
+    if z2_4v is None: # Return only the upper diagonal
+        upperind = NP.triu_indices(mdp.shape[-1])
+        upperind_raveled = NP.ravel_multi_index(upperind, mdp.shape[-2:])
+        mdp = mdp.reshape(mdp.shape[:-2]+(-1,))
+        mdp = mdp[...,upperind_raveled]
+    else:
+        mdp = mdp.reshape(mdp.shape[:-2]+(-1,))       
+    
+    return mdp    

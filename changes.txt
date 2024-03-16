@@ -1,3 +1,18 @@
+From 70be752 (main):
+===================
+
+In ClosureInvariants/vectorInvariants.py,
+
+(*) Add function minkowski_dot() with docstring
+
+In ClosureInvariants/tests/conftest.py,
+
+(*) Add pytest fixture for minkowski_dot_products
+
+In ClosureInvariants/tests/test_vectorInvariants.py,
+
+(*) Add test_minkowski_dot_products()
+
 From bc4770f (main):
 ===================
 

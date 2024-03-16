@@ -1,0 +1,11 @@
+From ac2f0c0 (main):
+===================
+
+(*) Move changes.txt to the parent folder
+(*) Move LICENSE.md to the parent folder
+(*) Move README.rst to the parent folder
+
+From empty (main):
+=================
+
+(*) Initial commit of repository

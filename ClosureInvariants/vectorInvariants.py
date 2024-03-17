@@ -401,3 +401,45 @@ def minkowski_dot(z1_4v: NP.ndarray, z2_4v: NP.ndarray = None) -> NP.ndarray:
         mdp = mdp.reshape(mdp.shape[:-2]+(-1,))       
     
     return mdp    
+
+def complete_minkowski_dots(z4v: NP.ndarray) -> NP.ndarray:
+    """
+    Compute the complete set of Minkowski inner products between a given set of Lorentz 4-vectors formed from advariants.
+
+    This function computes the complete set of Minkowski inner products between a given set of Lorentz 4-vectors formed from advariants.
+    The 4-vectors are partitioned into two groups: the first two vectors are considered as basis vectors,
+    and the rest are treated as vectors for which inner products with the basis vectors are computed.
+
+    Parameters:
+    z4v : numpy.ndarray
+        A numpy array representing the set of Lorentz complex 4-vectors of shape (..., N, 4). 
+
+    Returns:
+    numpy.ndarray
+        A numpy array containing the complete set of Minkowski inner products.
+        The output has shape (..., 8N-6), where N is the number of 4-vectors.
+
+    Examples:
+    >>> import numpy as NP
+    >>> z4v = NP.array([[[ -8.5 +5.j   -8.5 +5.j    3.5 +3.5j   4.5 -4.5j]
+                         [-44.5+41.j  -44.5+41.j    3.5 +3.5j   4.5 -4.5j]
+                         [-80.5+77.j  -80.5+77.j    3.5 +3.5j   4.5 -4.5j]]])  # A set of Lorentz 4-vectors
+    >>> complete_minkowski_dots(z4v)
+    array([[-32.5, -32.5, 8., 8., -32.5, 8., 8., -32.5, -32.5, -32.5, -32.5, 8., 
+            -32.5, 8., 8., -32.5, 8., -32.5]])
+    """
+
+    if not isinstance(z4v, NP.ndarray):
+        raise TypeError('Input z1_4v must be a numpy array')
+    if z4v.ndim == 1:
+        z4v = z4v.reshape(1,-1)
+    inshape = NP.array(z4v.shape)
+    z4v_basis = z4v[...,:2,:] # Choose first two complex 4-vectors for the basis
+    z4v_rest = z4v[...,2:,:] # Choose first two complex 4-vectors for the rest
+    
+    mdp_basis_basis = minkowski_dot(z4v_basis)
+    mdp_basis_rest = minkowski_dot(z4v_basis, z4v_rest)
+    
+    mdp = NP.concatenate([mdp_basis_basis, mdp_basis_rest], axis=-1)
+    return mdp
+

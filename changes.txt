@@ -1,3 +1,18 @@
+From ddab370 (main):
+===================
+
+In ClosureInvariants/vectorInvariants.py,
+
+(*) Add function compelte_minkowski_dots() with docstring
+
+In ClosureInvariants/tests/conftest.py,
+
+(*) Add pytest fixture for complete_minkowski_dots
+
+In ClosureInvariants/tests/test_vectorInvariants.py,
+
+(*) Add test_complete_minkowski_dots()
+
 From 5535f27 (main):
 ===================
 

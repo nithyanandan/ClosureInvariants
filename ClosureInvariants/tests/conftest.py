@@ -109,3 +109,8 @@ def minkowski_dot_products():
     mdp_22 = NP.array([[-32.5, -32.5, 8., 8., -32.5, 8., 8., -32.5, -32.5, -32.5]])
     mdp_21 = NP.array([[-32.5, 8., -32.5, 8., 8., -32.5, 8., -32.5]])
     return (mdp_22, mdp_21)
+
+@pytest.fixture
+def complete_minkowski_dots(minkowski_dot_products):
+    mdp_22, mdp_21 = minkowski_dot_products
+    return NP.concatenate([mdp_22, mdp_21], axis=-1)

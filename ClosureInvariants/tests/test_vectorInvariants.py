@@ -83,3 +83,8 @@ def test_minkowski_dot_products(vectors_from_advariants, minkowski_dot_products)
     assert NP.allclose(mdp22, mdp22_expected)
     assert NP.allclose(mdp21, mdp21_expected)
 
+def test_complete_minkowski_dots(vectors_from_advariants, complete_minkowski_dots):
+    result = VI.complete_minkowski_dots(vectors_from_advariants)
+    assert result.size == complete_minkowski_dots.size
+    assert result.size == (4*5)//2 + 2*(vectors_from_advariants.shape[-2]-2)*4
+    assert NP.allclose(result, complete_minkowski_dots)    

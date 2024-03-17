@@ -1,3 +1,10 @@
+From 5535f27 (main):
+===================
+
+In ClosureInvariants/tests/test_vectorInvariants.py,
+
+(*) In test_minkowski_dot_products(), test expected shapes
+
 From 70be752 (main):
 ===================
 

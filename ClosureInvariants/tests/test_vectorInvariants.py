@@ -73,11 +73,13 @@ def test_vectors_from_advariants(advariants_on_list, vectors_from_advariants):
     assert NP.allclose(result, vectors_from_advariants)
 
 def test_minkowski_dot_products(vectors_from_advariants, minkowski_dot_products):
-    z2 = vectors_from_advariants[0,:2,:]
-    z1 = vectors_from_advariants[0,[2],:]
+    z2 = vectors_from_advariants[:,:2,:]
+    z1 = vectors_from_advariants[:,[2],:]
     mdp22 = VI.minkowski_dot(z2)
     mdp21 = VI.minkowski_dot(z2, z1)
     mdp22_expected, mdp21_expected = minkowski_dot_products
+    assert mdp22.shape == mdp22_expected.shape
+    assert mdp21.shape == mdp21_expected.shape
     assert NP.allclose(mdp22, mdp22_expected)
     assert NP.allclose(mdp21, mdp21_expected)
 

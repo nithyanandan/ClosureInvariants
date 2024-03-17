@@ -1,9 +1,24 @@
+From 4ccc0db (main):
+===================
+
+In ClosureInvariants/vectorInvariants.py,
+
+(*) Add function remove_scaling_factor_minkowski_dots() with docstring
+
+In ClosureInvariants/tests/conftest.py,
+
+(*) Add pytest fixture for minkowski_dots_scaling_factor_removed
+
+In ClosureInvariants/tests/test_vectorInvariants.py,
+
+(*) Add test_remove_scaling_factor_minkoski_dots()
+
 From ddab370 (main):
 ===================
 
 In ClosureInvariants/vectorInvariants.py,
 
-(*) Add function compelte_minkowski_dots() with docstring
+(*) Add function complete_minkowski_dots() with docstring
 
 In ClosureInvariants/tests/conftest.py,
 

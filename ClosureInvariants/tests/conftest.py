@@ -114,3 +114,7 @@ def minkowski_dot_products():
 def complete_minkowski_dots(minkowski_dot_products):
     mdp_22, mdp_21 = minkowski_dot_products
     return NP.concatenate([mdp_22, mdp_21], axis=-1)
+
+@pytest.fixture
+def minkoski_dots_scaling_factor_removed(complete_minkowski_dots):
+    return complete_minkowski_dots / NP.sqrt(NP.sum(complete_minkowski_dots**2, axis=-1, keepdims=True))

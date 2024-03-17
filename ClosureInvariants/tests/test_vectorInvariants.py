@@ -88,3 +88,8 @@ def test_complete_minkowski_dots(vectors_from_advariants, complete_minkowski_dot
     assert result.size == complete_minkowski_dots.size
     assert result.size == (4*5)//2 + 2*(vectors_from_advariants.shape[-2]-2)*4
     assert NP.allclose(result, complete_minkowski_dots)    
+
+def test_remove_scaling_factor_minkoski_dots(complete_minkowski_dots, minkoski_dots_scaling_factor_removed):
+    result = VI.remove_scaling_factor_minkoski_dots(complete_minkowski_dots)
+    assert NP.allclose(result, minkoski_dots_scaling_factor_removed)
+    assert NP.allclose(NP.sum(result**2), 1.0)

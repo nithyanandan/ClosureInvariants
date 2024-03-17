@@ -443,3 +443,39 @@ def complete_minkowski_dots(z4v: NP.ndarray) -> NP.ndarray:
     mdp = NP.concatenate([mdp_basis_basis, mdp_basis_rest], axis=-1)
     return mdp
 
+def remove_scaling_factor_minkoski_dots(mdp: NP.ndarray, wts: NP.ndarray = None) -> NP.ndarray:
+    """
+    Remove a common scaling factor from the input array mdp by using the weights array wts.
+
+    Parameters:
+    mdp : numpy.ndarray
+        The input array representing Minkowski dot products. 
+        It has shape (...,N).
+    wts : numpy.ndarray, optional
+        The weights array used to compute the weighted L2 norm of the input array. 
+        If None, the weights are considered as ones. They must be broadcastable 
+        to mdp
+
+    Returns:
+    numpy.ndarray
+        The output array after removing the scaling factor.
+        It has shape (...,N).
+
+    Examples:
+    >>> import numpy as NP
+    >>> mdp = NP.array(array([[-32.5, -32.5, 8., 8., -32.5, 8., 8., -32.5, 
+                               -32.5, -32.5, -32.5, 8., -32.5, 8., 8., 
+                               -32.5, 8., -32.5]]))  # Input Minkowski dot products
+    >>> remove_scaling_factor_minkoski_dots(mdp)
+    array([[-0.30883129, -0.30883129,  0.07602001,  0.07602001, -0.30883129,  
+            0.07602001, 0.07602001, -0.30883129, -0.30883129, -0.30883129, 
+            -0.30883129,  0.07602001, -0.30883129,  0.07602001,  0.07602001, 
+            -0.30883129  0.07602001 -0.30883129]])
+    """
+    if wts is None:
+        wts = NP.ones_like(mdp)
+
+    # Remove scaling factor
+    ci = mdp / NP.sqrt(NP.sum((wts*mdp)**2, axis=-1, keepdims=True))
+
+    return ci

@@ -118,3 +118,14 @@ def complete_minkowski_dots(minkowski_dot_products):
 @pytest.fixture
 def minkoski_dots_scaling_factor_removed(complete_minkowski_dots):
     return complete_minkowski_dots / NP.sqrt(NP.sum(complete_minkowski_dots**2, axis=-1, keepdims=True))
+
+@pytest.fixture
+def complex_gains():
+    nants = 10
+    mean_gain_scale = 3.0
+    randseed = None
+    rng = NP.random.default_rng(randseed)
+    gains = rng.normal(loc=1.0, scale=NP.sqrt(0.5)/mean_gain_scale, size=(nants,2,2)).astype(NP.float64) + 1j * rng.normal(loc=1.0, scale=NP.sqrt(0.5)/mean_gain_scale, size=(nants,2,2)).astype(NP.float64) # shape is (...,n_antennas,2,2)
+    return gains
+
+

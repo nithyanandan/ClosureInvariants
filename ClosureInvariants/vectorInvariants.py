@@ -2,13 +2,60 @@ import numpy as NP
 from astroutils import mathops as MO
 from typing import List, Tuple, Union
 
-# def corrs_list_on_loops(corrs: NP.ndarray, 
-#                         ant_pairs: Union[List[Tuple[int,int]], List[List[int,int]], 
-#                                          List[Tuple[str,str]], List[List[str,str]]], 
-#                         loops: Union[List[Union[List[Union[int, str]], Tuple[Union[int, str], ...]]], 
-#                                      Tuple[Union[List[Union[int, str]], Tuple[Union[int, str], ...]], ...]], 
-#                         bl_axis: int = -3, 
-#                         pol_axes: Union[List[int], Tuple[int, int]] = (-2, -1)) -> List[List[NP.ndarray]]:
+def corrupt_visibilities(vis: NP.ndarray, g_a: NP.ndarray, g_b: NP.ndarray, pol_axes: NP.ndarray = None) -> NP.ndarray:
+    """
+    Corrupt visibilities with complex gains, g_a as a pre-factor and g_b as a post-factor.
+    The matrix multiplication occurs on the pol_axes specified.
+
+    Parameters:
+    vis : numpy.ndarray
+        The input array representing visibilities of shape (...,Nbl,2,2).
+    g_a : numpy.ndarray
+        The complex antenna gains as a pre-factor of shape (...,Nbl,2,2).
+    g_b : numpy.ndarray
+        The complex antenna gains as a post-factor of shape (...,Nbl,2,2).
+    pol_axes : numpy.ndarray, optional
+        The axes over which the Hermitian conjugate is applied. 
+        If None, Hermitian conjugate is applied over the last two axes.
+
+    Returns:
+    numpy.ndarray
+        The corrupted visibilities.
+
+    Raises:
+    TypeError: If vis, g_a, or g_b is not a numpy array.
+    ValueError: If inputs have incompatible dimensions or shapes.
+
+    Examples:
+    >>> import numpy as NP
+    >>> vis = NP.array([[[1+2j, 3+4j], [5+6j, 7+8j]]])
+    >>> g_a = NP.array([[[2+1j, 4-3j], [1+2j, 3+4j]]])
+    >>> g_b = NP.array([[[3-2j, 5+4j], [2+3j, 4-5j]]])
+    >>> corrupt_visibilities(vis, g_a, g_b)
+    array([[[ 444. +12.j,  224.+272.j],
+            [  48.+476.j, -272.+288.j]]])
+    """
+    if not isinstance(vis, NP.ndarray):
+        raise TypeError('Input vis must be a numpy array')
+    if not isinstance(g_a, NP.ndarray):
+        raise TypeError('Input g_a must be a numpy array')
+    if not isinstance(g_b, NP.ndarray):
+        raise TypeError('Input g_b must be a numpy array')
+    if vis.ndim != g_a.ndim:
+        raise ValueError('Inputs vis and g_a must have same number of dimensions')
+    if vis.ndim != g_b.ndim:
+        raise ValueError('Inputs vis and g_b must have same number of dimensions')
+    if g_a.ndim != g_b.ndim:
+        raise ValueError('Inputs g_a and g_b must have same number of dimensions')
+    if vis.shape[-2:] != (2,2):
+        raise ValueError('The last two axes of vis must have shape (2,2)')
+    if g_a.shape[-2:] != (2,2):
+        raise ValueError('The last two axes of g_a must have shape (2,2)')
+    if g_b.shape[-2:] != (2,2):
+        raise ValueError('The last two axes of g_b must have shape (2,2)')
+    return g_a @ vis @ MO.hermitian(g_b, axes=pol_axes)
+
+
 def corrs_list_on_loops(corrs: NP.ndarray, 
                         ant_pairs: List[Union[Tuple[Union[int, str], Union[int, str]], 
                                               List[Union[int, str]]]], 
@@ -128,13 +175,13 @@ def corrs_list_on_loops(corrs: NP.ndarray,
         
     return corrs_lol
 
-def advariant(corrs_list: List[NP.ndarray], pol_axes: Union[List[int], tuple] = (-2, -1)) -> NP.ndarray:
+def advariant(corrs_list: Union[List[List[NP.ndarray]], List[NP.ndarray]], pol_axes: Union[List[int], tuple] = (-2, -1)) -> NP.ndarray:
     """
     Construct the advariant from a list of odd-numbered correlations forming a closed odd-edged loop.
 
     Parameters
     ----------
-    corrs_list : List of numpy.ndarray
+    corrs_list : List or numpy.ndarray of numpy.ndarray
         List of odd-numbered correlations forming the edges of a closed odd-edged loop.
     pol_axes : List or tuple of int, optional
         Axes on which the hat operation is applied. Default is (-2, -1).
@@ -175,8 +222,8 @@ def advariant(corrs_list: List[NP.ndarray], pol_axes: Union[List[int], tuple] = 
     array([[ -4.+0.5j  -5.+1.5j]
            [-12.+8.5j -13.+9.5j]])
     """
-    print(type(corrs_list))
-    if not isinstance(corrs_list, list):
+
+    if not isinstance(corrs_list, (list,NP.ndarray)):
         raise TypeError('Input corrs_list must be a list')
     nedges = len(corrs_list)
     if nedges%2 == 0:

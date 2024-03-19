@@ -1,3 +1,19 @@
+From d39e16b (main):
+===================
+
+In ClosureInvariants/vectorInvariants.py,
+
+(*) Add function corrupt_visibilities() with docstring
+(*) Update function header and docstring of advariant()
+
+In ClosureInvariants/tests/conftest.py,
+
+(*) Add pytest fixture for complex_gains
+
+In ClosureInvariants/tests/test_vectorInvariants.py,
+
+(*) Add test_invariance()
+
 From 4ccc0db (main):
 ===================
 

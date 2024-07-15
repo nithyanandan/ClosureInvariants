@@ -1,3 +1,8 @@
+From 5b40c36 (scalar):
+=====================
+
+(*) Add ClosureInvariants/scalarInvariants.py to repo 
+
 From d39e16b (main):
 ===================
 

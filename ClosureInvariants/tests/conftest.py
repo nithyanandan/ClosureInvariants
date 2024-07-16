@@ -152,3 +152,15 @@ def copol_corrs_list3():
             NP.array([55+56j, 57+58j, 59+60j]),  
             NP.array([61+62j, 63+64j, 65+66j])]
 
+@pytest.fixture
+def copol_advariant1(copol_corrs_list1):
+    return copol_corrs_list1[0] / copol_corrs_list1[1].conj() * copol_corrs_list1[2]
+
+@pytest.fixture
+def copol_advariant2(copol_corrs_list2):
+    return copol_corrs_list2[0] / copol_corrs_list2[1].conj() * copol_corrs_list2[2]
+
+@pytest.fixture
+def copol_advariant3(copol_corrs_list3):
+    return copol_corrs_list3[0] / copol_corrs_list3[1].conj() * copol_corrs_list3[2]
+

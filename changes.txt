@@ -1,3 +1,18 @@
+From 53b6e54 (scalar):
+=====================
+
+In ClosureInvariants/scalarInvariants.py,
+
+(*) Add function advariant() along with docstring and example
+
+In tests/conftest.py,
+
+(*) Add some fixtures for scalar advariant tests
+
+In tests/test_scalarInvariants.py,
+
+(*) Add tests for advariants
+
 From 5691a7a (scalar):
 =====================
 

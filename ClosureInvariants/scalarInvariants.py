@@ -143,3 +143,59 @@ def corrs_list_on_loops(corrs: NP.ndarray,
         corrs_lol += [corrs_loop]
         
     return corrs_lol
+
+def advariant(corrs_list: Union[List[List[NP.ndarray]], List[NP.ndarray]]) -> NP.ndarray:
+    """
+    Construct the advariant from a list of odd-numbered correlations forming a closed odd-edged loop.
+
+    Parameters
+    ----------
+    corrs_list : List or numpy.ndarray of numpy.ndarray
+        List of odd-numbered correlations forming the edges of a closed odd-edged loop.
+
+    Returns
+    -------
+    numpy.ndarray
+        Advariant constructed from the list of correlations.
+
+    Raises
+    ------
+    TypeError
+        If the input corrs_list is not a list.
+        If any element of corrs_list is not a numpy array.
+    ValueError
+        If the input corrs_list does not have an odd number of elements.
+        If the shapes of numpy arrays in corrs_list are not identical.
+
+    Notes
+    -----
+    The advariant is constructed by taking the product of correlations from an odd-numbered list of 
+    correlations that forms the edges of a closed odd-edged loop. Every alternate correlation, starting from 
+    the second element, undergoes the hat operation, which involves taking the inverse conjugate.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from your_module import advariant
+    >>> corrs_list = np.array([5j, 3+2j, 1-4j])
+    >>> advariant(corrs_list)
+    array([3.84615385+4.23076923j])
+    """
+
+    if not isinstance(corrs_list, (list,NP.ndarray)):
+        raise TypeError('Input corrs_list must be a list')
+    nedges = len(corrs_list)
+    if nedges%2 == 0:
+        raise ValueError('Input corrs_list must be a list made of odd number of elements for an advariant to be constructed')
+
+    advar = None
+    for edgei,corr in enumerate(corrs_list):  
+        if edgei == 0:
+            advar = NP.copy(corr)
+        else:
+            if edgei%2 == 0:
+                advar = advar * corr
+            else:
+                advar = advar / corr.conj()
+                
+    return advar

@@ -1,3 +1,9 @@
+From 5691a7a (scalar):
+=====================
+
+(*) Update tests/conftest.py for copolar case
+(*) Add tests/test_scalarInvariants.py to repo
+
 From 4426115 (scalar):
 =====================
 

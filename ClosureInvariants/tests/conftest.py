@@ -38,18 +38,18 @@ def antenna_pairs(antenna_ids):
     return [(antenna_ids[i], antenna_ids[j]) for i in range(len(antenna_ids)) for j in range(i + 1, len(antenna_ids))]
 
 @pytest.fixture
-def pol_correlations_array(antenna_pairs):
-    real = NP.arange(len(antenna_pairs)*2*2)
-    imag = real[::-1]
-    return (real+1j*imag).reshape(-1,2,2)
-
-@pytest.fixture
 def loops(antenna_ids):
     return [[antenna_ids[i], antenna_ids[j], antenna_ids[k]] for i in range(len(antenna_ids)) for j in range(i + 1, len(antenna_ids)) for k in range(j + 1, len(antenna_ids))]
 
 @pytest.fixture
 def polaxes():
     return (-2,-1)
+
+@pytest.fixture
+def pol_correlations_array(antenna_pairs):
+    real = NP.arange(len(antenna_pairs)*2*2)
+    imag = real[::-1]
+    return (real+1j*imag).reshape(-1,2,2)
 
 @pytest.fixture
 def pol_corrs_list1():
@@ -128,4 +128,27 @@ def pol_complex_gains():
     gains = rng.normal(loc=1.0, scale=NP.sqrt(0.5)/mean_gain_scale, size=(nants,2,2)).astype(NP.float64) + 1j * rng.normal(loc=1.0, scale=NP.sqrt(0.5)/mean_gain_scale, size=(nants,2,2)).astype(NP.float64) # shape is (...,n_antennas,2,2)
     return gains
 
+@pytest.fixture
+def copol_correlations_array(antenna_pairs):
+    real = NP.arange(len(antenna_pairs))
+    imag = real[::-1]
+    return real+1j*imag
+
+@pytest.fixture
+def copol_corrs_list1():
+    return [NP.array([1+2j, 3+4j, 5+6j]),
+            NP.array([7+8j, 9+10j, 11+12j]),  
+            NP.array([13+14j, 15+16j, 17+18j])]
+
+@pytest.fixture
+def copol_corrs_list2():
+    return [NP.array([25+26j, 27+28j, 29+30j]),
+            NP.array([31+32j, 33+34j, 35+36j]), 
+            NP.array([37+38j, 39+40j, 41+42j])] 
+
+@pytest.fixture
+def copol_corrs_list3():
+    return [NP.array([49+50j, 51+52j, 53+54j]),
+            NP.array([55+56j, 57+58j, 59+60j]),  
+            NP.array([61+62j, 63+64j, 65+66j])]
 

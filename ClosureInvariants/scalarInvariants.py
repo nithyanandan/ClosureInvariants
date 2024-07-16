@@ -71,12 +71,10 @@ def corrs_list_on_loops(corrs: NP.ndarray,
     ------
     TypeError
         If the input ant_pairs or loops are not of valid types.
-        If the input pol_axes is not a list, tuple, or numpy array.
     ValueError
         If the input ant_pairs has invalid shape.
         If the input loops has invalid shape.
         If the input corrs and ant_pairs do not have the same number of baselines.
-        If the input pol_axes does not have exactly two elements.
 
     Notes
     -----
@@ -121,7 +119,7 @@ def corrs_list_on_loops(corrs: NP.ndarray,
         loops = loops.reshape(1,-1)
     elif loops.ndim != 2:
         raise ValueError('Input loops contains invalid shape')
-        
+
     corrs_lol = []
     for loopi, loop in enumerate(loops):
         corrs_loop = []

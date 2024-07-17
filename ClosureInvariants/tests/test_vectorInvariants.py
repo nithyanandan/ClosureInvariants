@@ -46,8 +46,7 @@ def test_pol_advariant(pol_corrs_list1, polaxes, pol_advariant1):
     # Check if the values are as expected
     assert NP.allclose(result, pol_advariant1)
 
-@pytest.mark.parametrize("expected_shape", [(1, 2, 2, 2)])
-def test_pol_advariants_multiple_loops(pol_corrs_lol, expected_shape, pol_advariants_on_list):
+def test_pol_advariants_multiple_loops(pol_corrs_lol, pol_advariants_on_list):
     # Call the function
     result = VI.advariants_multiple_loops(pol_corrs_lol)
 

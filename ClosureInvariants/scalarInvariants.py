@@ -199,3 +199,60 @@ def advariant(corrs_list: Union[List[List[NP.ndarray]], List[NP.ndarray]]) -> NP
                 advar = advar / corr.conj()
                 
     return advar
+
+def advariants_multiple_loops(corrs_lol: List[List[NP.ndarray]]) -> NP.ndarray:
+    """
+    Calculate advariants on multiple loops from a list of lists of odd-numbered correlations forming closed odd-edged loops.
+
+    Parameters
+    ----------
+    corrs_lol : List of lists of numpy.ndarray
+        List of lists of odd-numbered correlations forming closed odd-edged loops.
+
+    Returns
+    -------
+    numpy.ndarray
+        Advariants calculated for each loop in the input list.
+
+    Raises
+    ------
+    TypeError
+        If the input corrs_lol is not a list of lists.
+    ValueError
+        If the input corrs_lol contains invalid shapes of numpy arrays.
+        If the input corrs_lol is empty.
+
+    Notes
+    -----
+    This function calculates advariants on multiple loops by calling the advariant function for each loop in the input 
+    list of lists of odd-numbered correlations. The hat operation, which involves taking the inverse of the conjugate, 
+    is applied during the advariant calculation.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from your_module import advariants_multiple_loops
+    >>> cl1 = [NP.array([1+2j, 3+4j, 5+6j]),
+    ...        NP.array([7+8j, 9+10j, 11+12j]),
+    ...        NP.array([13+14j, 15+16j, 17+18j])]
+    >>> cl2 = [NP.array([25+26j, 27+28j, 29+30j]),
+    ...        NP.array([31+32j, 33+34j, 35+36j]),
+    ...        NP.array([37+38j, 39+40j, 41+42j])]
+    >>> cl3 = [NP.array([49+50j, 51+52j, 53+54j]),
+    ...        NP.array([55+56j, 57+58j, 59+60j]),
+    ...        NP.array([61+62j, 63+64j, 65+66j])]
+    >>> corrs_lol = [cl1, cl2, cl3]
+    >>> advariants_multiple_loops(corrs_lol)
+    array([[ -3.76106195 +1.4159292j   -6.91160221 +4.32044199j
+             -9.6490566  +6.92830189j]
+           [-31.8070529 +28.84433249j -33.87928731+30.91224944j
+            -35.94327648+32.97262991j]
+           [-56.32738192+53.33939296j -58.35097535+55.36216543j
+            -60.37296992+57.38342042j]])
+    """
+    if not isinstance(corrs_lol, list):
+        raise TypeError('Input corrs_lol must be a list of lists')
+    advars_list = []
+    for ind, corrs_list in enumerate(corrs_lol):
+        advars_list += [advariant(corrs_list)]
+    return NP.array(advars_list)

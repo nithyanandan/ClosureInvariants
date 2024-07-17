@@ -164,3 +164,11 @@ def copol_advariant2(copol_corrs_list2):
 def copol_advariant3(copol_corrs_list3):
     return copol_corrs_list3[0] / copol_corrs_list3[1].conj() * copol_corrs_list3[2]
 
+@pytest.fixture
+def copol_corrs_lol(copol_corrs_list1, copol_corrs_list2, copol_corrs_list3):
+    return [copol_corrs_list1, copol_corrs_list2, copol_corrs_list3]
+
+@pytest.fixture
+def copol_advariants_on_list(copol_advariant1, copol_advariant2, copol_advariant3):
+    return NP.concatenate([[copol_advariant1], [copol_advariant2], [copol_advariant3]], axis=0)
+

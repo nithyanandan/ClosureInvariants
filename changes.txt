@@ -1,3 +1,23 @@
+From 7de39c9 (scalar):
+=====================
+
+In ClosureInvariants/scalarInvariants.py,
+
+(*) Add function advariants_multiple_loops() with docstring 
+and example
+
+In tests/conftest.py,
+
+(*) Add some fixtures for scalar advariant tests
+
+In tests/test_scalarInvariants.py,
+
+(*) Add tests for advariants on lists of correlations on loops
+
+In tests/test_vectorInvariants.py,
+
+(*) Minor updates
+
 From 53b6e54 (scalar):
 =====================
 

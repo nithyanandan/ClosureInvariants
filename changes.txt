@@ -1,3 +1,16 @@
+From 295912a (scalar):
+=====================
+
+In ClosureInvariants/scalarInvariants.py,
+
+(*) Add function invariants_from_advariants_method1() with 
+docstring and example
+
+In tests/test_scalarInvariants.py,
+
+(*) Add tests for function invariants_from_advariants_method1()
+checking shape and type exceptions
+
 From 7de39c9 (scalar):
 =====================
 

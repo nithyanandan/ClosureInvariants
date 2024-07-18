@@ -256,3 +256,83 @@ def advariants_multiple_loops(corrs_lol: List[List[NP.ndarray]]) -> NP.ndarray:
     for ind, corrs_list in enumerate(corrs_lol):
         advars_list += [advariant(corrs_list)]
     return NP.array(advars_list)
+
+def invariants_from_advariants_method1(advariants: NP.ndarray, 
+                                       normaxis: int, 
+                                       normwts: NP.ndarray = None, 
+                                       normpower: int = 2) -> NP.ndarray:
+    """
+    Calculate the invariants from the advariants using a specified normalization method.
+    The real and imaginary parts of the advariants are split, concatenated, and then 
+    the normalization is performed on this concatenated array.
+
+    Parameters
+    ----------
+    advariants : numpy.ndarray
+        Array of advariants to be normalized.
+    normaxis : int
+        Axis along which the normalization occurs.
+    normwts : numpy.ndarray, optional
+        Weights used for the normalization. Should be broadcastable to the shape of advariants.
+        Default is 1 along the normaxis.
+    normpower : int, optional
+        Power used to define the norm (e.g., L1 norm if normpower=1, L2 norm if normpower=2).
+        Default is 2 (L2 norm).
+
+    Returns
+    -------
+    numpy.ndarray
+        Array of normalized invariants.
+
+    Raises
+    ------
+    TypeError
+        If the input advariants is not a numpy array.
+        If normwts is provided and is not a numpy array.
+        If normpower is not an integer.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from your_module import invariants_from_advariants_method1
+    >>> advariants = np.random.randn(3, 4, 5) + 1j * np.random.randn(3, 4, 5)
+    >>> normaxis = 1
+    >>> invariants = invariants_from_advariants_method1(advariants, normaxis)
+    >>> print(invariants)
+
+    >>> normwts = np.random.rand(3, 4, 5)
+    >>> invariants = invariants_from_advariants_method1(advariants, normaxis, normwts=normwts, normpower=1)
+    >>> print(invariants)
+    """
+    
+    # Validate inputs
+    if not isinstance(advariants, NP.ndarray):
+        raise TypeError('Input advariants must be a numpy array')
+    if normwts is not None and not isinstance(normwts, NP.ndarray):
+        raise TypeError('Input normwts must be a numpy array')
+    if not isinstance(normpower, int):
+        raise TypeError('Input normpower must be an integer')
+    
+    # Set default weights if not provided
+    if normwts is None:
+        normwts = NP.ones(advariants.shape, dtype=NP.float64)
+    
+    # Ensure normwts is real
+    if not NP.isrealobj(normwts):
+        raise ValueError('Input normwts must be a real numpy array')
+    
+    # Split real and imaginary parts and concatenate them
+    real_part = NP.real(advariants)
+    imag_part = NP.imag(advariants)
+    concatenated_advariants = NP.concatenate((real_part, imag_part), axis=-1)
+    
+    # Duplicate normwts for the imaginary parts
+    concatenated_normwts = NP.concatenate((normwts, normwts), axis=-1)
+
+    # Calculate the normalization factor
+    normalization_factor = NP.sum(NP.abs(concatenated_advariants * concatenated_normwts)**normpower, axis=normaxis, keepdims=True)**(1/normpower)
+
+    # Calculate the invariants
+    invariants = concatenated_advariants / normalization_factor
+
+    return invariants

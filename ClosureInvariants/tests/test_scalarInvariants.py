@@ -62,3 +62,28 @@ def test_invariants_from_advariants_method1(advariants, normaxis, normwts, normp
 def test_invariants_from_advariants_method1_exceptions(advariants, normaxis, normwts, normpower, exception_type):
     with pytest.raises(exception_type):
         SI.invariants_from_advariants_method1(advariants, normaxis, normwts=normwts, normpower=normpower)
+
+@pytest.mark.parametrize(
+    "normwts, normpower",
+    [
+        (None, 2),
+        (NP.random.rand(3,3), 2),
+        (NP.random.rand(3,3), 1),
+        (NP.zeros((3,3)), 2)
+    ]
+)
+def test_scalar_invariance(copol_corrs_list1, copol_corrs_list2, copol_corrs_list3, copol_complex_gains, normwts, normpower):
+    corrs_in = [copol_corrs_list1, copol_corrs_list2, copol_corrs_list3]
+    advars_in = SI.advariants_multiple_loops(corrs_in)
+    normax = 0
+    if normwts is not None and NP.all(normwts == 0):
+        normwts[0,:] = 1  # For the specific test case where normwts is 1 for the first element and 0 for the rest
+    ci_in = SI.invariants_from_advariants_method1(advars_in, normax, normwts=normwts, normpower=normpower)
+
+    preinds = NP.concatenate([NP.zeros((3,1), dtype=int), 1+NP.arange(6, dtype=int).reshape(3,2)], axis=-1)
+    postinds = NP.roll(preinds, -1, axis=-1)
+    corrs_out = [SI.corrupt_visibilities(NP.array(corrs_in[loopi]), copol_complex_gains[preinds[loopi]][...,NP.newaxis], copol_complex_gains[postinds[loopi]][...,NP.newaxis]) for loopi in range(len(corrs_in))]
+    advars_out = SI.advariants_multiple_loops(corrs_out)
+    ci_out = SI.invariants_from_advariants_method1(advars_out, normax, normwts=normwts, normpower=normpower)
+
+    assert NP.allclose(ci_in, ci_out)

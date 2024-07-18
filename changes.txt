@@ -1,3 +1,15 @@
+From f111826 (scalar):
+=====================
+
+In tests/test_scalarInvariants.py,
+
+(*) Add tests for function invariants_from_advariants_method1()
+checking invariance
+
+In tests/conftest.py,
+
+(*) Add pytest fixture copol_complex_gains()
+
 From 295912a (scalar):
 =====================
 

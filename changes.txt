@@ -1,3 +1,11 @@
+From 464e51c (examples):
+=======================
+
+In examples/, 
+
+(*) Add vector_invariants.ipynb to repo
+(*) Add __init__.py to repo
+
 From f111826 (scalar):
 =====================
 

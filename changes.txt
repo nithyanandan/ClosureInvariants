@@ -1,3 +1,10 @@
+From 36dc67c (examples):
+=======================
+
+In examples/vector_invariants.ipynb,
+
+(*) Add verification of scale factors
+
 From 464e51c (examples):
 =======================
 

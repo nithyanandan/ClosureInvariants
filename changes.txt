@@ -1,3 +1,15 @@
+From 459abce (test):
+===================
+
+In tests/conftest.py,
+
+(*) Add one more id in fixtures example_ids and example_ids_strings
+
+In tests/test_graphUtils.py,
+
+(*) Update test_generate_triangles_valid_strings() and 
+test_generate_triangles_valid()
+
 From 36dc67c (examples):
 =======================
 

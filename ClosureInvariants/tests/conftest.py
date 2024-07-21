@@ -3,11 +3,11 @@ import numpy as NP
 
 @pytest.fixture
 def example_ids():
-    return [1, 2, 3, 4]
+    return [0, 1, 2, 3, 4]
 
 @pytest.fixture
 def example_ids_strings():
-    return ['A', 'B', 'C', 'D']
+    return ['O', 'A', 'B', 'C', 'D']
 
 @pytest.fixture(params=[('scalar',), ('matrix',)])
 def arrtype(request):

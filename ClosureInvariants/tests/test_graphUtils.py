@@ -5,18 +5,24 @@ import pytest
 def test_generate_triangles_valid(example_ids):
     baseid = 1
     triads = GU.generate_triangles(example_ids, baseid)
-    assert len(triads) == 3
-    assert (baseid, 2, 3) in triads
-    assert (baseid, 2, 4) in triads
-    assert (baseid, 3, 4) in triads
+    assert len(triads) == (len(example_ids)-1)*(len(example_ids)-2)//2
+    unique_ids = NP.unique(example_ids)
+    rest_ids = list(unique_ids)
+    rest_ids.remove(baseid)
+    for e2i in range(len(rest_ids)):
+        for e3i in range(e2i+1, len(rest_ids)):
+            assert (baseid, rest_ids[e2i], rest_ids[e3i]) in triads
 
 def test_generate_triangles_valid_strings(example_ids_strings):
     baseid = 'A'
     triads = GU.generate_triangles(example_ids_strings, baseid)
-    assert len(triads) == 3
-    assert (baseid, 'B', 'C') in triads
-    assert (baseid, 'B', 'D') in triads
-    assert (baseid, 'C', 'D') in triads
+    assert len(triads) == (len(example_ids_strings)-1)*(len(example_ids_strings)-2)//2
+    unique_ids = NP.unique(example_ids_strings)
+    rest_ids = list(unique_ids)
+    rest_ids.remove(baseid)
+    for e2i in range(len(rest_ids)):
+        for e3i in range(e2i+1, len(rest_ids)):
+            assert (baseid, rest_ids[e2i], rest_ids[e3i]) in triads
 
 def test_generate_triangles_invalid_ids():
     with pytest.raises(TypeError):

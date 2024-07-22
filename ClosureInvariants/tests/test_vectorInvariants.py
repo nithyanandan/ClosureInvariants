@@ -46,7 +46,16 @@ def test_pol_advariant(pol_corrs_list1, polaxes, pol_advariant1):
     # Check if the values are as expected
     assert NP.allclose(result, pol_advariant1)
 
-def test_pol_advariants_multiple_loops(pol_corrs_lol, pol_advariants_on_list):
+def test_pol_advariants_multiple_loops(pol_xc_lol, pol_advariant_loops):
+    result = VI.advariants_multiple_loops(pol_xc_lol)
+
+    # Check if the result has the expected shape
+    assert result.shape == pol_advariant_loops.shape
+
+    # Check if the values are as expected
+    assert NP.allclose(result, pol_advariant_loops)
+
+def test_pol_advariants_multiple_loops_old(pol_corrs_lol, pol_advariants_on_list):
     # Call the function
     result = VI.advariants_multiple_loops(pol_corrs_lol)
 

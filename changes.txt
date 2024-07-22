@@ -1,3 +1,22 @@
+From 701920e (test):
+===================
+
+In tests/test_vectorInvariants.py,
+
+(*) Rename test_pol_advariants_multiple_loops() to 
+test_pol_advariants_multiple_loops_old()
+(*) Modify test_pol_advariants_multiple_loops() with a new test using
+new pytest fixtures in tests/conftest.py
+
+In tests/conftest.py,
+
+(*) Add pytest fixtures element_pairs, example_ids_strings, pol_xc, 
+pol_xc_lol, and pol_advariant_loops
+
+In examples/vector_invariants.ipynb,
+
+(*) Minor bug fix of variable name
+
 From 459abce (test):
 ===================
 

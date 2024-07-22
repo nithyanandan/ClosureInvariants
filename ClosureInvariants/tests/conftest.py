@@ -1,5 +1,7 @@
 import pytest
+import copy
 import numpy as NP
+from astroutils import mathops as MO
 
 @pytest.fixture
 def example_ids():
@@ -42,6 +44,14 @@ def loops(antenna_ids):
     return [[antenna_ids[i], antenna_ids[j], antenna_ids[k]] for i in range(len(antenna_ids)) for j in range(i + 1, len(antenna_ids)) for k in range(j + 1, len(antenna_ids))]
 
 @pytest.fixture
+def element_pairs(example_ids):
+    return [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
+
+@pytest.fixture
+def triads(antenna_ids):
+    return [[antenna_ids[i], antenna_ids[j], antenna_ids[k]] for i in range(len(antenna_ids)) for j in range(i + 1, len(antenna_ids)) for k in range(j + 1, len(antenna_ids))]
+
+@pytest.fixture
 def polaxes():
     return (-2,-1)
 
@@ -77,6 +87,70 @@ def pol_corrs_list3():
                       [61+62j, 63+64j]]), 
             NP.array([[65+66j, 67+68j], 
                       [69+70j, 71+72j]])]
+
+@pytest.fixture
+def pol_xc(example_ids_strings):
+    nbl = len(example_ids_strings) * (len(example_ids_strings)-1) // 2
+    nruns_shape = (13,)
+    pol_axes = (-2,-1)
+    npol = len(pol_axes)
+    xc_real_std = 1.0
+    xc_imag_std = 1.0
+    randseed = None
+    rng = NP.random.default_rng(randseed) 
+    xc = rng.normal(loc=0.0, scale=xc_real_std, size=nruns_shape+(nbl,npol,npol)) + 1j * rng.normal(loc=0.0, scale=xc_imag_std, size=nruns_shape+(nbl,npol,npol)) # The last two are polarisation axes
+    return xc
+
+@pytest.fixture
+def pol_xc_lol(pol_xc, example_ids):
+    element_pairs = [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i+1,len(example_ids))]
+    element_pairs = NP.asarray(element_pairs).reshape(-1,2)
+    # npairs = len(element_pairs)
+    # ntri = (len(example_ids)-1) * (len(example_ids)-2) // 2
+    baseid = example_ids[0]
+    unique_ids = NP.unique(example_ids)
+    rest_ids = list(unique_ids)
+    rest_ids.remove(baseid)
+    triads = []
+    for e2i in range(len(rest_ids)):
+        for e3i in range(e2i+1, len(rest_ids)):
+            triads += [(baseid, rest_ids[e2i], rest_ids[e3i])]
+    triads = NP.asarray(triads)
+    pol_axes = (-2,-1)
+    bl_axis = -3
+    corrs_lol = []
+    for triad in triads:
+        corrs_loop = []
+        for i in range(len(triad)):
+            bl_ind = NP.where((element_pairs[:,0] == triad[i]) & (element_pairs[:,1]==triad[(i+1)%triad.size]))[0]
+            if bl_ind.size == 1:
+                corr = NP.copy(NP.take(pol_xc, bl_ind, axis=bl_axis))
+            elif bl_ind.size == 0: # Check for reversed pair
+                bl_ind = NP.where((element_pairs[:,0] == triad[(i+1)%triad.size]) & (element_pairs[:,1]==triad[i]))[0]
+                if bl_ind.size == 0:
+                    raise IndexError('Specified antenna pair ({0:0d},{1:0d}) not found in input element_pairs'.format(triad[i], triad[(i+1)%triad.size]))
+                elif bl_ind.size == 1: # Take Hermitian
+                    corr = MO.hermitian(NP.take(pol_xc, bl_ind, axis=bl_axis), axes=pol_axes)
+                elif bl_ind.size > 1:
+                    raise IndexError('{0:0d} indices found for antenna pair ({1:0d},{2:0d}) in input element_pairs'.format(bl_ind, triad[i], triad[(i+1)%triad.size]))
+            elif bl_ind.size > 1:
+                raise IndexError('{0:0d} indices found for antenna pair ({1:0d},{2:0d}) in input element_pairs'.format(bl_ind, triad[i], triad[(i+1)%triad.size]))
+        
+            corr = NP.take(corr, 0, axis=bl_axis)
+            corrs_loop += [corr]
+        corrs_lol += [corrs_loop]
+        
+    return corrs_lol
+
+@pytest.fixture
+def pol_advariant_loops(pol_xc_lol):
+    advars_list = []
+    for xc_list_in_loop in pol_xc_lol:
+        inaxes = NP.arange(xc_list_in_loop[0].ndim)
+        transdims = NP.append(inaxes[:-2], [2,1])
+        adv_on_loop = xc_list_in_loop[0]@NP.linalg.inv(xc_list_in_loop[1].conj().transpose(transdims))@xc_list_in_loop[2]
+        advars_list += [copy.deepcopy(adv_on_loop)]
+    return NP.moveaxis(NP.array(advars_list), 0, -3) # Move the loop axis to third from the end 
 
 @pytest.fixture
 def pol_advariant1(pol_corrs_list1):

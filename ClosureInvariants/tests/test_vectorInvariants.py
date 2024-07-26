@@ -68,7 +68,33 @@ def test_pol_advariants_multiple_loops_old(pol_corrs_lol, pol_advariants_on_list
     # Check if the values are as expected
     assert NP.allclose(result, pol_advariants_on_list)
 
-def test_vectors_from_advariants(pol_advariants_on_list, vectors_from_pol_advariants):
+def test_vectors_from_advariants(pol_advariant_loops, polaxes):
+    indims = pol_advariant_loops.ndim
+    polaxes = NP.array(polaxes)
+    polaxes = (polaxes + indims) % indims 
+    npol = len(polaxes)
+
+    pauli_mat0 = NP.identity(2, dtype=complex).reshape(tuple(NP.ones(indims-2, dtype=int))+(npol,npol))
+    pauli_mat1 = NP.asarray([[0.0, 1.0], [1.0, 0.0]], dtype=complex).reshape(tuple(NP.ones(indims-2, dtype=int))+(npol,npol))
+    pauli_mat2 = NP.asarray([[0.0, -1j], [1j, 0.0]], dtype=complex).reshape(tuple(NP.ones(indims-2, dtype=int))+(npol,npol))
+    pauli_mat3 = NP.asarray([[1.0, 0.0], [0.0, -1.0]], dtype=complex).reshape(tuple(NP.ones(indims-2, dtype=int))+(npol,npol))
+
+    z0 = 0.5 * NP.trace(pol_advariant_loops@pauli_mat0, axis1=-2, axis2=-1)
+    z1 = 0.5 * NP.trace(pol_advariant_loops@pauli_mat1, axis1=-2, axis2=-1)
+    z2 = 0.5 * NP.trace(pol_advariant_loops@pauli_mat2, axis1=-2, axis2=-1)
+    z3 = 0.5 * NP.trace(pol_advariant_loops@pauli_mat3, axis1=-2, axis2=-1)
+
+    z4v = NP.concatenate([z0[...,NP.newaxis], z1[...,NP.newaxis], z2[...,NP.newaxis], z3[...,NP.newaxis]], axis=-1) # shape=(...,4)
+
+    pkg_result = VI.vector_from_advariant(pol_advariant_loops)
+    
+    # Check if the result has the expected shape
+    assert pkg_result.shape == z4v.shape
+
+    # Check if the values are as expected
+    assert NP.allclose(pkg_result, z4v)
+
+def test_vectors_from_advariants_old(pol_advariants_on_list, vectors_from_pol_advariants):
     result = VI.vector_from_advariant(pol_advariants_on_list)
 
     # Check if the result is a numpy array

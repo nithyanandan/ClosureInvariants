@@ -9,7 +9,15 @@ def example_ids():
 
 @pytest.fixture
 def example_ids_strings():
-    return ['O', 'A', 'B', 'C', 'D']
+    return ['A', 'B', 'O', 'C', 'D']
+
+@pytest.fixture
+def baseid_ind(example_ids_strings):
+    return example_ids_strings.index('O')
+
+@pytest.fixture
+def baseid():
+    return 'O'
 
 @pytest.fixture(params=[('scalar',), ('matrix',)])
 def arrtype(request):
@@ -48,8 +56,15 @@ def element_pairs(example_ids):
     return [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
 
 @pytest.fixture
-def triads(antenna_ids):
-    return [[antenna_ids[i], antenna_ids[j], antenna_ids[k]] for i in range(len(antenna_ids)) for j in range(i + 1, len(antenna_ids)) for k in range(j + 1, len(antenna_ids))]
+def triads_indep(example_ids, baseid):
+    unique_ids = NP.unique(example_ids)
+    rest_ids = list(unique_ids)
+    rest_ids.remove(baseid)
+    triads = []
+    for e2i in range(len(rest_ids)):
+        for e3i in range(e2i+1, len(rest_ids)):
+            triads += [(baseid, rest_ids[e2i], rest_ids[e3i])]
+    return triads
 
 @pytest.fixture
 def polaxes():
@@ -152,6 +167,19 @@ def pol_advariant_loops(pol_xc_lol):
         advars_list += [copy.deepcopy(adv_on_loop)]
     return NP.moveaxis(NP.array(advars_list), 0, -3) # Move the loop axis to third from the end 
 
+@pytest.fixture
+def pol_advariants_random(triads_indep):
+    nloops = len(triads_indep)
+    nruns_shape = (13,)
+    pol_axes = (-2,-1)
+    npol = len(pol_axes)
+    advar_real_std = 1.0
+    advar_imag_std = 1.0
+    randseed = None
+    rng = NP.random.default_rng(randseed) 
+    advariants = rng.normal(loc=0.0, scale=advar_real_std, size=nruns_shape+(nloops,npol,npol)) + 1j * rng.normal(loc=0.0, scale=advar_imag_std, size=nruns_shape+(nloops,npol,npol)) # The last two are polarisation axes
+    return advariants
+    
 @pytest.fixture
 def pol_advariant1(pol_corrs_list1):
     return (pol_corrs_list1[0]@NP.linalg.inv(pol_corrs_list1[1].T.conj())@pol_corrs_list1[2])[NP.newaxis,...]

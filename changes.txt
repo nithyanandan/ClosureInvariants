@@ -1,3 +1,15 @@
+From f9331a4 (test):
+===================
+
+In tests/test_vectorInvariants.py,
+
+(*) Add test_vectors_from_advariants() to test creation of 4-vectors 
+from advariants
+
+In tests/conftest.py,
+
+(*) Add pytest fixture pol_advariants_random 
+
 From 701920e (test):
 ===================
 

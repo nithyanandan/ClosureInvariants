@@ -1,3 +1,17 @@
+From 7bdff48 (test):
+===================
+
+In tests/test_vectorInvariants.py,
+
+(*) Modify test_invariance() to test_invariance_old()
+(*) Add test_invariance() to test invariance to complex polarimetric 
+gains and the scale factors are the determinants of the gains 
+
+In tests/conftest.py,
+
+(*) Add pytest fixture nruns_shape
+(*) minor updates 
+
 From f9331a4 (test):
 ===================
 

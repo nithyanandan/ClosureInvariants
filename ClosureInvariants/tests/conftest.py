@@ -58,8 +58,9 @@ def element_pairs(example_ids):
 @pytest.fixture
 def triads_indep(example_ids, baseid):
     unique_ids = NP.unique(example_ids)
-    rest_ids = list(unique_ids)
-    rest_ids.remove(baseid)
+    rest_ids = [id for id in unique_ids if id!=baseid]
+    # rest_ids = list(unique_ids)
+    # rest_ids.remove(baseid)
     triads = []
     for e2i in range(len(rest_ids)):
         for e3i in range(e2i+1, len(rest_ids)):
@@ -104,9 +105,12 @@ def pol_corrs_list3():
                       [69+70j, 71+72j]])]
 
 @pytest.fixture
-def pol_xc(example_ids_strings):
+def nruns_shape():
+    return (13,)
+
+@pytest.fixture
+def pol_xc(example_ids_strings, nruns_shape):
     nbl = len(example_ids_strings) * (len(example_ids_strings)-1) // 2
-    nruns_shape = (13,)
     pol_axes = (-2,-1)
     npol = len(pol_axes)
     xc_real_std = 1.0
@@ -124,8 +128,9 @@ def pol_xc_lol(pol_xc, example_ids):
     # ntri = (len(example_ids)-1) * (len(example_ids)-2) // 2
     baseid = example_ids[0]
     unique_ids = NP.unique(example_ids)
-    rest_ids = list(unique_ids)
-    rest_ids.remove(baseid)
+    rest_ids = [id for id in unique_ids if id!=baseid]
+    # rest_ids = list(unique_ids)
+    # rest_ids.remove(baseid)
     triads = []
     for e2i in range(len(rest_ids)):
         for e3i in range(e2i+1, len(rest_ids)):
@@ -168,9 +173,8 @@ def pol_advariant_loops(pol_xc_lol):
     return NP.moveaxis(NP.array(advars_list), 0, -3) # Move the loop axis to third from the end 
 
 @pytest.fixture
-def pol_advariants_random(triads_indep):
+def pol_advariants_random(triads_indep, nruns_shape):
     nloops = len(triads_indep)
-    nruns_shape = (13,)
     pol_axes = (-2,-1)
     npol = len(pol_axes)
     advar_real_std = 1.0
@@ -222,12 +226,12 @@ def minkoski_dots_scaling_factor_removed(complete_minkowski_dots):
     return complete_minkowski_dots / NP.sqrt(NP.sum(complete_minkowski_dots**2, axis=-1, keepdims=True))
 
 @pytest.fixture
-def pol_complex_gains():
-    nants = 10
+def pol_complex_gains(example_ids, nruns_shape):
+    nants = 2*len(example_ids)
     mean_gain_scale = 3.0
     randseed = None
     rng = NP.random.default_rng(randseed)
-    gains = rng.normal(loc=1.0, scale=NP.sqrt(0.5)/mean_gain_scale, size=(nants,2,2)).astype(NP.float64) + 1j * rng.normal(loc=1.0, scale=NP.sqrt(0.5)/mean_gain_scale, size=(nants,2,2)).astype(NP.float64) # shape is (...,n_antennas,2,2)
+    gains = rng.normal(loc=1.0, scale=NP.sqrt(0.5)/mean_gain_scale, size=nruns_shape+(nants,2,2)).astype(NP.float64) + 1j * rng.normal(loc=1.0, scale=NP.sqrt(0.5)/mean_gain_scale, size=nruns_shape+(nants,2,2)).astype(NP.float64) # shape is (...,n_antennas,2,2)
     return gains
 
 @pytest.fixture

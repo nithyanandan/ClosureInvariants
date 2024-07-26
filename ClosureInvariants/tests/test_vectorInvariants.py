@@ -1,5 +1,6 @@
 import pytest
 import numpy as NP
+from .. import graphUtils as GU
 from .. import vectorInvariants as VI
 
 def test_pol_corrs_list_on_loops_shape(pol_correlations_array, antenna_pairs, loops):
@@ -128,19 +129,47 @@ def test_remove_scaling_factor_minkoski_dots(complete_minkowski_dots, minkoski_d
     assert NP.allclose(result, minkoski_dots_scaling_factor_removed)
     assert NP.allclose(NP.sum(result**2), 1.0)
 
-def test_invariance(pol_corrs_list1, pol_corrs_list2, pol_corrs_list3, pol_complex_gains):
+def test_invariance(pol_xc, pol_complex_gains, example_ids, baseid_ind, polaxes):
+    bl_axis = -3
+    element_axis = -3
+    element_pairs = [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
+    triads_indep = GU.generate_triangles(example_ids, baseid_ind)
+    pol_xc_lol = VI.corrs_list_on_loops(pol_xc, element_pairs, triads_indep, bl_axis=bl_axis, pol_axes=polaxes)
+    advars_in = VI.advariants_multiple_loops(pol_xc_lol)
+    z4v_in = VI.vector_from_advariant(advars_in)
+    mdp_in = VI.complete_minkowski_dots(z4v_in)
+    ci_in = VI.remove_scaling_factor_minkoski_dots(mdp_in)
+
+    prefactor_gains = NP.take(pol_complex_gains, NP.array(element_pairs)[:,0], axis=element_axis) # A collection of g_a
+    postfactor_gains = NP.take(pol_complex_gains, NP.array(element_pairs)[:,1], axis=element_axis) # A collection of g_b
+    pol_xc_mod = VI.corrupt_visibilities(pol_xc, prefactor_gains, postfactor_gains, pol_axes=polaxes)
+    pol_xc_lol_mod = VI.corrs_list_on_loops(pol_xc_mod, element_pairs, triads_indep, bl_axis=bl_axis, pol_axes=polaxes)
+    advars_out = VI.advariants_multiple_loops(pol_xc_lol_mod)
+    z4v_out = VI.vector_from_advariant(advars_out)
+    mdp_out = VI.complete_minkowski_dots(z4v_out)
+    ci_out = VI.remove_scaling_factor_minkoski_dots(mdp_out)
+
+    assert NP.allclose(ci_in, ci_out)
+
+    scale_factor = NP.abs(NP.linalg.det(pol_complex_gains))**2
+
+    assert NP.allclose(scale_factor[...,[baseid_ind]], mdp_out / mdp_in)
+
+def test_invariance_old(pol_corrs_list1, pol_corrs_list2, pol_corrs_list3, pol_complex_gains):
     corrs_in = [pol_corrs_list1, pol_corrs_list2, pol_corrs_list3]
     advars_in = VI.advariants_multiple_loops(corrs_in)
     z4v_in = VI.vector_from_advariant(advars_in)
     mdp_in = VI.complete_minkowski_dots(z4v_in)
     ci_in = VI.remove_scaling_factor_minkoski_dots(mdp_in)
 
+    irun = 0
     preinds = NP.concatenate([NP.zeros((3,1), dtype=int), 1+NP.arange(6, dtype=int).reshape(3,2)], axis=-1)
     postinds = NP.roll(preinds, -1, axis=-1)
-    corrs_out = [VI.corrupt_visibilities(NP.array(corrs_in[loopi]), pol_complex_gains[preinds[loopi]], pol_complex_gains[postinds[loopi]]) for loopi in range(len(corrs_in))]
+    corrs_out = [VI.corrupt_visibilities(NP.array(corrs_in[loopi]), pol_complex_gains[irun,preinds[loopi]], pol_complex_gains[irun,postinds[loopi]]) for loopi in range(len(corrs_in))]
     advars_out = VI.advariants_multiple_loops(corrs_out)
     z4v_out = VI.vector_from_advariant(advars_out)
     mdp_out = VI.complete_minkowski_dots(z4v_out)
     ci_out = VI.remove_scaling_factor_minkoski_dots(mdp_out)
 
     assert NP.allclose(ci_in, ci_out)
+

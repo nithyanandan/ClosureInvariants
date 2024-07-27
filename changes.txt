@@ -1,3 +1,16 @@
+From 413348c (test):
+===================
+
+In tests/test_scalarInvariants.py,
+
+(*) Rename test_scalar_invariance() to test_scalar_invariance_old()
+(*) Test the invariance and scale factor in the new 
+test_scalar_invariance()
+
+In tests/conftest.py,
+
+(*) Add pytest fixtures npairs and ntriads_indep
+
 From d8362f8 (test):
 ===================
 

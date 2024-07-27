@@ -56,6 +56,10 @@ def element_pairs(example_ids):
     return [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
 
 @pytest.fixture
+def npairs(element_pairs):
+    return len(element_pairs)
+
+@pytest.fixture
 def triads_indep(example_ids, baseid):
     unique_ids = NP.unique(example_ids)
     rest_ids = [id for id in unique_ids if id!=baseid]
@@ -66,6 +70,10 @@ def triads_indep(example_ids, baseid):
         for e3i in range(e2i+1, len(rest_ids)):
             triads += [(baseid, rest_ids[e2i], rest_ids[e3i])]
     return triads
+
+@pytest.fixture
+def ntriads_indep(triads_indep):
+    return len(triads_indep)
 
 @pytest.fixture
 def polaxes():

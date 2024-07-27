@@ -1,5 +1,6 @@
 import pytest
 import numpy as NP
+from .. import graphUtils as GU
 from .. import scalarInvariants as SI
 
 def test_copol_corrs_list_on_loops_shape(copol_correlations_array, antenna_pairs, loops):
@@ -75,6 +76,41 @@ def test_invariants_from_advariants_method1(advariants, normaxis, normwts, normp
 def test_invariants_from_advariants_method1_exceptions(advariants, normaxis, normwts, normpower, exception_type):
     with pytest.raises(exception_type):
         SI.invariants_from_advariants_method1(advariants, normaxis, normwts=normwts, normpower=normpower)
+
+@pytest.mark.parametrize(
+    "normwts, normpower",
+    [
+        (None, 2),
+        (NP.random.rand(13,6), 2),
+        (NP.random.rand(13,6), 1),
+        (NP.zeros((13,6)), 2)
+    ]
+)
+def test_scalar_invariance(copol_xc, copol_complex_gains, example_ids, baseid_ind, normwts, normpower):
+    bl_axis = -1
+    element_axis = -1
+    element_pairs = [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
+    triads_indep = GU.generate_triangles(example_ids, baseid_ind)
+    copol_xc_lol = SI.corrs_list_on_loops(copol_xc, element_pairs, triads_indep, bl_axis=bl_axis)
+    advars_in = SI.advariants_multiple_loops(copol_xc_lol)
+
+    normax = -1
+    if normwts is not None and NP.all(normwts == 0):
+        normwts[:,0] = 1  # For the specific test case where normwts is 1 for the first element and 0 for the rest
+    ci_in = SI.invariants_from_advariants_method1(advars_in, normax, normwts=normwts, normpower=normpower)
+
+    prefactor_gains = NP.take(copol_complex_gains, NP.array(element_pairs)[:,0], axis=element_axis) # A collection of g_a
+    postfactor_gains = NP.take(copol_complex_gains, NP.array(element_pairs)[:,1], axis=element_axis) # A collection of g_b
+    copol_xc_mod = SI.corrupt_visibilities(copol_xc, prefactor_gains, postfactor_gains)
+    copol_xc_lol_mod = SI.corrs_list_on_loops(copol_xc_mod, element_pairs, triads_indep, bl_axis=bl_axis)
+    advars_out = SI.advariants_multiple_loops(copol_xc_lol_mod)
+    ci_out = SI.invariants_from_advariants_method1(advars_out, normax, normwts=normwts, normpower=normpower)
+
+    assert NP.allclose(ci_in, ci_out)
+
+    scale_factor = NP.abs(copol_complex_gains)**2
+
+    assert NP.allclose(scale_factor[...,[baseid_ind]], advars_out/advars_in)
 
 @pytest.mark.parametrize(
     "normwts, normpower",

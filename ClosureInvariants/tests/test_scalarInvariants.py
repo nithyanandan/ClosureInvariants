@@ -21,7 +21,20 @@ def test_copol_advariant(copol_corrs_list1, copol_advariant1):
     # Check if the values are as expected
     assert NP.allclose(result, copol_advariant1)
 
-def test_copol_advariants_multiple_loops(copol_corrs_lol, copol_advariants_on_list):
+def test_copol_advariants_multiple_loops(copol_xc_lol, copol_advariant_loops):
+    # Call the function
+    result = SI.advariants_multiple_loops(copol_xc_lol)
+
+    # Check if the result is a numpy array
+    assert isinstance(result, NP.ndarray)    
+    
+    # Check if the result has the expected shape
+    assert result.shape == copol_advariant_loops.shape
+
+    # Check if the values are as expected
+    assert NP.allclose(result, copol_advariant_loops)
+
+def test_copol_advariants_multiple_loops_old(copol_corrs_lol, copol_advariants_on_list):
     # Call the function
     result = SI.advariants_multiple_loops(copol_corrs_lol)
 
@@ -72,7 +85,7 @@ def test_invariants_from_advariants_method1_exceptions(advariants, normaxis, nor
         (NP.zeros((3,3)), 2)
     ]
 )
-def test_scalar_invariance(copol_corrs_list1, copol_corrs_list2, copol_corrs_list3, copol_complex_gains, normwts, normpower):
+def test_scalar_invariance_old(copol_corrs_list1, copol_corrs_list2, copol_corrs_list3, copol_complex_gains, normwts, normpower):
     corrs_in = [copol_corrs_list1, copol_corrs_list2, copol_corrs_list3]
     advars_in = SI.advariants_multiple_loops(corrs_in)
     normax = 0
@@ -80,9 +93,10 @@ def test_scalar_invariance(copol_corrs_list1, copol_corrs_list2, copol_corrs_lis
         normwts[0,:] = 1  # For the specific test case where normwts is 1 for the first element and 0 for the rest
     ci_in = SI.invariants_from_advariants_method1(advars_in, normax, normwts=normwts, normpower=normpower)
 
+    irun = 0
     preinds = NP.concatenate([NP.zeros((3,1), dtype=int), 1+NP.arange(6, dtype=int).reshape(3,2)], axis=-1)
     postinds = NP.roll(preinds, -1, axis=-1)
-    corrs_out = [SI.corrupt_visibilities(NP.array(corrs_in[loopi]), copol_complex_gains[preinds[loopi]][...,NP.newaxis], copol_complex_gains[postinds[loopi]][...,NP.newaxis]) for loopi in range(len(corrs_in))]
+    corrs_out = [SI.corrupt_visibilities(NP.array(corrs_in[loopi]), copol_complex_gains[irun,preinds[loopi]][...,NP.newaxis], copol_complex_gains[irun,postinds[loopi]][...,NP.newaxis]) for loopi in range(len(corrs_in))]
     advars_out = SI.advariants_multiple_loops(corrs_out)
     ci_out = SI.invariants_from_advariants_method1(advars_out, normax, normwts=normwts, normpower=normpower)
 

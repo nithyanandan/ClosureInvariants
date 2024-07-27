@@ -1,3 +1,25 @@
+From d8362f8 (test):
+===================
+
+In tests/test_scalarInvariants.py,
+
+(*) Modify test_copol_advariants_multiple_loops() to 
+test_copol_advariants_multiple_loops_old()
+(*) Add test_copol_advariants_multiple_loops() based on changes in 
+tests/conftest.py
+(*) Minor changes
+
+In tests/conftest.py,
+
+(*) Add pytest fixtures copol_xc, copol_xc_lol, copol_advariant_loops,
+copol_complex_gains
+(*) minor updates 
+
+In scalarInvariants.py,
+
+(*) Move loop axis to the last axis in the value returned from function
+advariants_multiple_loops() 
+
 From 7bdff48 (test):
 ===================
 

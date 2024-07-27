@@ -255,7 +255,7 @@ def advariants_multiple_loops(corrs_lol: List[List[NP.ndarray]]) -> NP.ndarray:
     advars_list = []
     for ind, corrs_list in enumerate(corrs_lol):
         advars_list += [advariant(corrs_list)]
-    return NP.array(advars_list)
+    return NP.moveaxis(NP.array(advars_list), 0, -1) # Move the loop axis to first from the end
 
 def invariants_from_advariants_method1(advariants: NP.ndarray, 
                                        normaxis: int, 

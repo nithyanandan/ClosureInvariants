@@ -1,3 +1,8 @@
+From 1d8707a (examples):
+=======================
+
+(*) Add examples/scalar_invariants.ipynb to repo
+
 From 413348c (test):
 ===================
 

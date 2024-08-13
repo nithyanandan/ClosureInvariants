@@ -1,3 +1,12 @@
+From fcfa8cc (scalar):
+=====================
+
+In scalarInvariants.py,
+
+(*) Update function invariants_from_advariants_method1() to let 
+the parameter normwts accept 'max' as input and assign weights 
+accordingly
+
 From 4924e0f (test):
 ===================
 

@@ -308,8 +308,10 @@ def invariants_from_advariants_method1(advariants: NP.ndarray,
     # Validate inputs
     if not isinstance(advariants, NP.ndarray):
         raise TypeError('Input advariants must be a numpy array')
-    if normwts is not None and not isinstance(normwts, NP.ndarray):
-        raise TypeError('Input normwts must be a numpy array')
+    if normwts is not None and not (isinstance(normwts, NP.ndarray) or normwts == 'max'):
+        raise TypeError("Input normwts must be a numpy array, None, or 'max'")
+    # if normwts is not None and not isinstance(normwts, NP.ndarray):
+    #     raise TypeError('Input normwts must be a numpy array')
     if not isinstance(normpower, int):
         raise TypeError('Input normpower must be an integer')
 

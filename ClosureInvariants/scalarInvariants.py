@@ -1,5 +1,5 @@
 import numpy as NP
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 def corrupt_visibilities(vis: NP.ndarray, g_a: NP.ndarray, g_b: NP.ndarray) -> NP.ndarray:
     """
@@ -25,7 +25,7 @@ def corrupt_visibilities(vis: NP.ndarray, g_a: NP.ndarray, g_b: NP.ndarray) -> N
     >>> import numpy as NP
     >>> vis = NP.array([1+2j, 3+4j, 5+6j, 7+8j])
     >>> g_a = NP.array([0.9+0.1j, 1.0, 1.1, 0.95+0.05j])
-    >>> g_b = np.array([1+0.2j, 1.0, 1.2, 0.9+0.1j])
+    >>> g_b = NP.array([1+0.2j, 1.0, 1.2, 0.9+0.1j])
     >>> corrupt_visibilities(vis, g_a, g_b)
     array([0.7 + 1.76j, 3 + 4j, 6.6 + 7.92j, 4.83 + 6.53j])
     """
@@ -83,7 +83,7 @@ def corrs_list_on_loops(corrs: NP.ndarray,
 
     Examples
     --------
-    >>> corrs = np.random.randn(10)  # Example correlations array
+    >>> corrs = NP.random.randn(10)  # Example correlations array
     >>> ant_pairs = [(0, 1), (1, 2), (2, 3), (3, 4)]  # Example antenna pairs
     >>> loops = [[0, 1, 2], [2, 3, 4]]  # Example loops of antenna indices
     >>> corrs_list_on_loops(corrs, ant_pairs, loops)
@@ -175,9 +175,9 @@ def advariant(corrs_list: Union[List[List[NP.ndarray]], List[NP.ndarray]]) -> NP
 
     Examples
     --------
-    >>> import numpy as np
+    >>> import numpy as NP
     >>> from your_module import advariant
-    >>> corrs_list = np.array([5j, 3+2j, 1-4j])
+    >>> corrs_list = NP.array([5j, 3+2j, 1-4j])
     >>> advariant(corrs_list)
     array([3.84615385+4.23076923j])
     """
@@ -230,7 +230,7 @@ def advariants_multiple_loops(corrs_lol: List[List[NP.ndarray]]) -> NP.ndarray:
 
     Examples
     --------
-    >>> import numpy as np
+    >>> import numpy as NP
     >>> from your_module import advariants_multiple_loops
     >>> cl1 = [NP.array([1+2j, 3+4j, 5+6j]),
     ...        NP.array([7+8j, 9+10j, 11+12j]),
@@ -259,7 +259,7 @@ def advariants_multiple_loops(corrs_lol: List[List[NP.ndarray]]) -> NP.ndarray:
 
 def invariants_from_advariants_method1(advariants: NP.ndarray, 
                                        normaxis: int, 
-                                       normwts: NP.ndarray = None, 
+                                       normwts: Optional[Union[NP.ndarray, str]] = None, 
                                        normpower: int = 2) -> NP.ndarray:
     """
     Calculate the invariants from the advariants using a specified normalization method.
@@ -293,14 +293,14 @@ def invariants_from_advariants_method1(advariants: NP.ndarray,
 
     Examples
     --------
-    >>> import numpy as np
+    >>> import numpy as NP
     >>> from your_module import invariants_from_advariants_method1
-    >>> advariants = np.random.randn(3, 4, 5) + 1j * np.random.randn(3, 4, 5)
+    >>> advariants = NP.random.randn(3, 4, 5) + 1j * NP.random.randn(3, 4, 5)
     >>> normaxis = -1
     >>> invariants = invariants_from_advariants_method1(advariants, normaxis)
     >>> print(invariants)
 
-    >>> normwts = np.random.rand(3, 4, 5)
+    >>> normwts = NP.random.rand(3, 4, 5)
     >>> invariants = invariants_from_advariants_method1(advariants, normaxis, normwts=normwts, normpower=1)
     >>> print(invariants)
     """
@@ -308,24 +308,31 @@ def invariants_from_advariants_method1(advariants: NP.ndarray,
     # Validate inputs
     if not isinstance(advariants, NP.ndarray):
         raise TypeError('Input advariants must be a numpy array')
-    if normwts is not None and not isinstance(normwts, NP.ndarray):
-        raise TypeError('Input normwts must be a numpy array')
+    if normwts is not None and not (isinstance(normwts, NP.ndarray) or normwts == 'max'):
+        raise TypeError("Input normwts must be a numpy array, None, or 'max'")
+    # if normwts is not None and not isinstance(normwts, NP.ndarray):
+    #     raise TypeError('Input normwts must be a numpy array')
     if not isinstance(normpower, int):
         raise TypeError('Input normpower must be an integer')
-    
-    # Set default weights if not provided
-    if normwts is None:
-        normwts = NP.ones(advariants.shape, dtype=NP.float64)
-        if NP.iscomplexobj(advariants):
-            normwts = normwts + 1j # Add weights of 1 to imaginary parts of advariants too
-    
+
     # Split real and imaginary parts and concatenate them
     if NP.iscomplexobj(advariants):
         realvalued_advariants = NP.concatenate((advariants.real, advariants.imag), axis=-1)
-        realvalued_normwts = NP.concatenate((normwts.real, normwts.imag), axis=-1)
     else:
         realvalued_advariants = NP.copy(advariants)
-        realvalued_normwts = normwts.real
+    
+    if isinstance(normwts, str):
+        if normwts == 'max':
+            realvalued_normwts = NP.zeros_like(realvalued_advariants)
+            max_indices = NP.argmax(NP.abs(realvalued_advariants), axis=normaxis, keepdims=True)
+            NP.put_along_axis(realvalued_normwts, max_indices, 1, axis=normaxis)
+    elif normwts is None:
+        realvalued_normwts = NP.ones_like(realvalued_advariants)
+    else:
+        if NP.iscomplexobj(advariants):
+            realvalued_normwts = NP.concatenate((normwts.real, normwts.imag), axis=-1)
+        else:
+            realvalued_normwts = normwts
     
     # Calculate the normalization factor
     normalization_factor = NP.sum(NP.abs(realvalued_advariants * realvalued_normwts)**normpower, axis=normaxis, keepdims=True)**(1/normpower)

@@ -1,3 +1,16 @@
+From b0f1368 (test):
+===================
+
+In conftest.py,
+
+(*) Add fixtures nelements, element_locs, element_pairs_locs, 
+point_loc, and copol_point_xc for point source testing
+
+In tests/test_scalrInvariants.py,
+
+(*) Add test_point_scalar_invariance() to test scalar invariants
+from a point source
+
 From d33e7f2 (examples):
 =======================
 

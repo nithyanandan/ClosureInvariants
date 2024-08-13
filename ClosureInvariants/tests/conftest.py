@@ -12,6 +12,10 @@ def example_ids_strings():
     return ['A', 'B', 'O', 'C', 'D']
 
 @pytest.fixture
+def nelements(example_ids):
+    return len(example_ids)
+
+@pytest.fixture
 def baseid_ind(example_ids_strings):
     return example_ids_strings.index('O')
 
@@ -115,6 +119,21 @@ def pol_corrs_list3():
 @pytest.fixture
 def nruns_shape():
     return (13,)
+
+@pytest.fixture
+def element_locs(nruns_shape, nelements):
+    return 1e3*NP.random.normal(loc=0.0, scale=1.0, size=nruns_shape+(nelements,2)) # in lambda units
+
+@pytest.fixture
+def element_pairs_locs(element_locs):
+    nelements = element_locs.shape[-2]
+    locs_diff = NP.array([element_locs[...,i,:] - element_locs[...,j,:] for i in range(nelements) for j in range(i+1,nelements)]) # in lambda units, shape=(nbl, nruns, 2)
+    return NP.moveaxis(locs_diff, 0, 1)
+
+@pytest.fixture
+def point_loc():
+    loc_complex = NP.random.uniform() * NP.exp(1j*NP.random.uniform(low=-NP.pi, high=NP.pi))
+    return NP.array([loc_complex.real, loc_complex.imag]).reshape(1,-1) # in (l,m) coordinates
 
 @pytest.fixture
 def pol_xc(example_ids_strings, nruns_shape):
@@ -364,4 +383,9 @@ def copol_complex_gains(example_ids, nruns_shape):
     rng = NP.random.default_rng(randseed)
     gains = rng.normal(loc=1.0, scale=NP.sqrt(0.5)/mean_gain_scale, size=nruns_shape+(nants,)).astype(NP.float64) + 1j * rng.normal(loc=1.0, scale=NP.sqrt(0.5)/mean_gain_scale, size=nruns_shape+(nants,)).astype(NP.float64) # shape is (...,n_antennas)
     return gains
+
+@pytest.fixture
+def copol_point_xc(point_loc, element_pairs_locs):
+    src_amp = NP.random.rand() # in Jy
+    return NP.sum(src_amp * NP.exp(2j*NP.pi * NP.dot(element_pairs_locs, point_loc.T)), axis=-1) # shape=(nruns, nbl)
 

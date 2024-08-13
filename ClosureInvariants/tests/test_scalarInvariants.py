@@ -112,6 +112,28 @@ def test_scalar_invariance(copol_xc, copol_complex_gains, example_ids, baseid_in
 
     assert NP.allclose(scale_factor[...,[baseid_ind]], advars_out/advars_in)
 
+def test_point_scalar_invariance(copol_point_xc, copol_complex_gains, example_ids, baseid_ind):
+    bl_axis = -1
+    element_axis = -1
+    element_pairs = [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
+    triads_indep = GU.generate_triangles(example_ids, baseid_ind)
+
+    normax = -1
+    normwts = 'max'
+    normpower = 1
+
+    prefactor_gains = NP.take(copol_complex_gains, NP.array(element_pairs)[:,0], axis=element_axis) # A collection of g_a
+    postfactor_gains = NP.take(copol_complex_gains, NP.array(element_pairs)[:,1], axis=element_axis) # A collection of g_b
+    copol_xc_mod = SI.corrupt_visibilities(copol_point_xc, prefactor_gains, postfactor_gains)
+    copol_xc_lol_mod = SI.corrs_list_on_loops(copol_xc_mod, element_pairs, triads_indep, bl_axis=bl_axis)
+    advars_in = SI.advariants_multiple_loops(copol_xc_lol_mod)
+    ci_in = SI.invariants_from_advariants_method1(advars_in, normax, normwts=normwts, normpower=normpower)
+
+    ci_out = NP.concatenate([NP.ones(advars_in.shape), NP.zeros(advars_in.shape)], axis=-1)
+
+    assert ci_in.shape == ci_out.shape
+    assert NP.allclose(ci_in, ci_out)
+
 @pytest.mark.parametrize(
     "normwts, normpower",
     [

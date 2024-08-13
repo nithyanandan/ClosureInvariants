@@ -341,3 +341,54 @@ def invariants_from_advariants_method1(advariants: NP.ndarray,
     invariants = realvalued_advariants / normalization_factor
 
     return invariants
+
+def closurePhases_from_advariants(advariants: NP.ndarray) -> NP.ndarray:
+    """
+    Calculate closure phases from the given advariants.
+
+    The closure phase is defined as the phase angle of the advariants.
+    This function returns the phase of each element in the input advariants array.
+    If the advariants are real, the phase will be zero or pi.
+
+    Parameters
+    ----------
+    advariants : numpy.ndarray
+        A numpy array (real or complex) representing the advariants from which closure phases 
+        are to be computed.
+
+    Returns
+    -------
+    numpy.ndarray
+        A numpy array containing the closure phases, which are the angles of the 
+        elements in the input advariants array. The output array has the 
+        same shape as the input advariants array.
+
+    Raises
+    ------
+    TypeError
+        If the input advariants is not a numpy array.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> advariants = np.array([[1+2j, 3+4j], [5+6j, 7+8j]])
+    >>> closure_phases = closurePhase_from_advariants(advariants)
+    >>> print(closure_phases)
+    array([[ 1.10714872,  0.92729522],
+           [ 0.87605805,  0.85196633]])
+
+    >>> advariants_real = np.array([[1, 2], [3, 4]])
+    >>> closure_phases_real = closurePhase_from_advariants(advariants_real)
+    >>> print(closure_phases_real)
+    array([[0., 0.],
+           [0., 0.]])
+    """
+
+    # Validate input
+    if not isinstance(advariants, NP.ndarray):
+        raise TypeError('Input advariants must be a numpy array')
+
+    # Calculate closure phases (angles of the advariants)
+    closure_phases = NP.angle(advariants)
+
+    return closure_phases

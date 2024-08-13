@@ -1,3 +1,20 @@
+From 736d29c (scalar):
+=====================
+
+In scalarInvariants.py,
+
+(*) Add function closureCphases_from_advariants() with type 
+hinting and docstring to compute closure phases from advariants
+
+In tests/scalarInvariants.py,
+
+(*) Add test_point_closure_phases_from_advariants() to test the 
+closure phases of point sources
+
+In examples/scalar_invariants.ipynb, 
+
+(*) Verify the closure phases of point sources 
+
 From b0f1368 (test):
 ===================
 

@@ -1,3 +1,10 @@
+From deccb1c (examples):
+=======================
+
+In examples/scalar_invariants.ipynb, 
+
+(*) Add test for point source invariance and to translation
+
 From 1d8707a (examples):
 =======================
 

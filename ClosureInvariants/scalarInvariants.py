@@ -296,7 +296,7 @@ def invariants_from_advariants_method1(advariants: NP.ndarray,
     >>> import numpy as np
     >>> from your_module import invariants_from_advariants_method1
     >>> advariants = np.random.randn(3, 4, 5) + 1j * np.random.randn(3, 4, 5)
-    >>> normaxis = 1
+    >>> normaxis = -1
     >>> invariants = invariants_from_advariants_method1(advariants, normaxis)
     >>> print(invariants)
 
@@ -316,23 +316,21 @@ def invariants_from_advariants_method1(advariants: NP.ndarray,
     # Set default weights if not provided
     if normwts is None:
         normwts = NP.ones(advariants.shape, dtype=NP.float64)
-    
-    # Ensure normwts is real
-    if not NP.isrealobj(normwts):
-        raise ValueError('Input normwts must be a real numpy array')
+        if NP.iscomplexobj(advariants):
+            normwts = normwts + 1j # Add weights of 1 to imaginary parts of advariants too
     
     # Split real and imaginary parts and concatenate them
-    real_part = NP.real(advariants)
-    imag_part = NP.imag(advariants)
-    concatenated_advariants = NP.concatenate((real_part, imag_part), axis=-1)
+    if NP.iscomplexobj(advariants):
+        realvalued_advariants = NP.concatenate((advariants.real, advariants.imag), axis=-1)
+        realvalued_normwts = NP.concatenate((normwts.real, normwts.imag), axis=-1)
+    else:
+        realvalued_advariants = NP.copy(advariants)
+        realvalued_normwts = normwts.real
     
-    # Duplicate normwts for the imaginary parts
-    concatenated_normwts = NP.concatenate((normwts, normwts), axis=-1)
-
     # Calculate the normalization factor
-    normalization_factor = NP.sum(NP.abs(concatenated_advariants * concatenated_normwts)**normpower, axis=normaxis, keepdims=True)**(1/normpower)
+    normalization_factor = NP.sum(NP.abs(realvalued_advariants * realvalued_normwts)**normpower, axis=normaxis, keepdims=True)**(1/normpower)
 
     # Calculate the invariants
-    invariants = concatenated_advariants / normalization_factor
+    invariants = realvalued_advariants / normalization_factor
 
     return invariants

@@ -51,15 +51,15 @@ def test_copol_advariants_multiple_loops_old(copol_corrs_lol, copol_advariants_o
 @pytest.mark.parametrize(
     "advariants, normaxis, normwts, normpower, expected_shape",
     [
-        (NP.random.randn(3,4,5) + 1j*NP.random.randn(3,4,5), 1, None, 2, (3, 4, 10)),
-        (NP.random.randn(3,4,5) + 1j*NP.random.randn(3,4,5), 1, NP.random.rand(3,4,5), 2, (3,4,10)),
-        (NP.random.randn(3,4,5) + 1j*NP.random.randn(3,4,5), 1, NP.random.rand(3,4,5), 1, (3,4,10)),
-        (NP.random.randn(3,4,5) + 1j*NP.random.randn(3,4,5), 1, NP.zeros((3,4,5)), 2, (3,4,10)),
+        (NP.random.randn(3,4,5) + 1j*NP.random.randn(3,4,5), -1, None, 2, (3, 4, 10)),
+        (NP.random.randn(3,4,5) + 1j*NP.random.randn(3,4,5), -1, NP.random.rand(3,4,5), 2, (3,4,10)),
+        (NP.random.randn(3,4,5) + 1j*NP.random.randn(3,4,5), -1, NP.random.rand(3,4,5), 1, (3,4,10)),
+        (NP.random.randn(3,4,5) + 1j*NP.random.randn(3,4,5), -1, NP.zeros((3,4,5)), 2, (3,4,10)),
     ]
 )
 def test_invariants_from_advariants_method1(advariants, normaxis, normwts, normpower, expected_shape):
     if normwts is not None and NP.all(normwts == 0):
-        normwts[:, 0, :] = 1  # For the specific test case where normwts is 1 for the first element and 0 for the rest
+        normwts[:,:,0] = 1  # For the specific test case where normwts is 1 for the first element and 0 for the rest
 
     invariants = SI.invariants_from_advariants_method1(advariants, normaxis, normwts=normwts, normpower=normpower)
     assert invariants.shape == expected_shape

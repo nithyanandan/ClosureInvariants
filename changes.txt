@@ -1,3 +1,16 @@
+From 4924e0f (test):
+===================
+
+In scalarInvariants.py,
+
+(*) Update normalisations of advariants in 
+invariants_from_advariants_method1()
+
+In tests/test_scalarInvariants.py,
+
+(*) Update input parameters (normaxis) and normwts in test function
+test_invariants_from_advariants_method1()
+
 From deccb1c (examples):
 =======================
 

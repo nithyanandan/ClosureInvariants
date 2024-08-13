@@ -1,3 +1,11 @@
+From d33e7f2 (examples):
+=======================
+
+In examples/scalar_invariants.ipynb, 
+
+(*) Verify point source invariants using "max" normalisation of
+advariants
+
 From fcfa8cc (scalar):
 =====================
 

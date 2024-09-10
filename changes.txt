@@ -1,3 +1,24 @@
+From dd96719 (scalar):
+=====================
+
+In scalarInvariants.py,
+
+(*) Add function closureAmplitudes_from_covariants() along with
+docstring and examples to compute closure amplitudes from 
+covariants 
+
+In tests/test_scalarInvariants.py,
+
+(*) Add test_point_closure_amplitudes_from_covariants() to test
+the values of closure amplitudes for a point source and their
+invariance to gain corruptions. 
+
+In examples/scalar_invariants.ipynb,
+
+(*) Give examples of calculating covariants, closure amplitudes 
+from covariants, verification of their invariance against 
+gain corruptions, and verification of values for a point source. 
+
 From 00091b6 (scalar):
 =====================
 

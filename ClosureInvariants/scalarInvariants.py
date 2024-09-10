@@ -518,3 +518,103 @@ def covariants_multiple_loops(corrs_lol: List[List[NP.ndarray]]) -> NP.ndarray:
     
     # Move the loop axis to the first from the end
     return NP.moveaxis(NP.array(covars_list), 0, -1)
+
+def closureAmplitudes_from_covariants(covariants: NP.ndarray) -> NP.ndarray:
+    """
+    Calculate closure amplitudes from the given covariants.
+
+    The closure amplitude is defined as the absolute value of the covariants.
+    This function returns the absolute value of each element in the input covariants array.
+
+    Parameters
+    ----------
+    covariants : numpy.ndarray
+        A numpy array (real or complex) representing the covariants from which closure amplitudes 
+        are to be computed.
+
+    Returns
+    -------
+    numpy.ndarray
+        A numpy array containing the closure amplitudes, which are the absolute values of the 
+        elements in the input covariants array. The output array has the same shape as the input 
+        covariants array.
+
+    Raises
+    ------
+    TypeError
+        If the input covariants is not a numpy array.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> covariants = np.array([[1+2j, 3+4j], [5+6j, 7+8j]])
+    >>> closure_amplitudes = closureAmplitudes_from_covariants(covariants)
+    >>> print(closure_amplitudes)
+    array([[ 2.23606798,  5.        ],
+           [ 7.81024968, 10.63014581]])
+
+    >>> covariants_real = np.array([[1, 2], [3, 4]])
+    >>> closure_amplitudes_real = closureAmplitudes_from_covariants(covariants_real)
+    >>> print(closure_amplitudes_real)
+    array([[1., 2.],
+           [3., 4.]])
+    """
+    # Validate input
+    if not isinstance(covariants, NP.ndarray):
+        raise TypeError('Input covariants must be a numpy array')
+
+    # Calculate closure amplitudes (absolute values of the covariants)
+    closure_amplitudes = NP.abs(covariants)
+
+    return closure_amplitudes
+
+def closurePhases_from_covariants(covariants: NP.ndarray) -> NP.ndarray:
+    """
+    Calculate closure phases from the given covariants.
+
+    The closure phase is defined as the phase angle of the covariants.
+    This function returns the phase of each element in the input covariants array.
+    If the covariants are real, the phase will be zero or pi.
+
+    Parameters
+    ----------
+    covariants : numpy.ndarray
+        A numpy array (real or complex) representing the covariants from which closure phases 
+        are to be computed.
+
+    Returns
+    -------
+    numpy.ndarray
+        A numpy array containing the closure phases, which are the angles of the 
+        elements in the input covariants array. The output array has the 
+        same shape as the input covariants array.
+
+    Raises
+    ------
+    TypeError
+        If the input covariants is not a numpy array.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> covariants = np.array([[1+2j, 3+4j], [5+6j, 7+8j]])
+    >>> closure_phases = closurePhases_from_covariants(covariants)
+    >>> print(closure_phases)
+    array([[ 1.10714872,  0.92729522],
+           [ 0.87605805,  0.85196633]])
+
+    >>> covariants_real = np.array([[1, 2], [3, 4]])
+    >>> closure_phases_real = closurePhases_from_covariants(covariants_real)
+    >>> print(closure_phases_real)
+    array([[0., 0.],
+           [0., 0.]])
+    """
+    # Validate input
+    if not isinstance(covariants, NP.ndarray):
+        raise TypeError('Input covariants must be a numpy array')
+
+    # Calculate closure phases (angles of the covariants)
+    closure_phases = NP.angle(covariants)
+
+    return closure_phases
+

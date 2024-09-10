@@ -153,6 +153,23 @@ def test_point_closure_phases_from_advariants(copol_point_xc, copol_complex_gain
 
     assert NP.allclose(cp_in, cp_out)
 
+def test_point_closure_amplitudes_from_covariants(copol_point_xc, copol_complex_gains, example_ids):
+    bl_axis = -1
+    element_axis = -1
+    element_pairs = [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
+    quads_indep = GU.generate_independent_quads(example_ids)
+
+    prefactor_gains = NP.take(copol_complex_gains, NP.array(element_pairs)[:,0], axis=element_axis) # A collection of g_a
+    postfactor_gains = NP.take(copol_complex_gains, NP.array(element_pairs)[:,1], axis=element_axis) # A collection of g_b
+    copol_xc_mod = SI.corrupt_visibilities(copol_point_xc, prefactor_gains, postfactor_gains)
+    copol_xc_lol_mod = SI.corrs_list_on_loops(copol_xc_mod, element_pairs, quads_indep, bl_axis=bl_axis)
+    covars_in = SI.covariants_multiple_loops(copol_xc_lol_mod)
+    camp_in = SI.closureAmplitudes_from_covariants(covars_in)
+
+    camp_out = NP.ones(covars_in.shape)
+
+    assert NP.allclose(camp_in, camp_out)
+
 @pytest.mark.parametrize(
     "normwts, normpower",
     [

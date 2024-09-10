@@ -85,14 +85,15 @@ def test_generate_independent_quads(node_labels):
 
     # Check if the output is correct for specific cases
     quads = set()
-    for i in range(N):
-        pair1 = (node_labels[i], node_labels[(i + 1) % N])
-        for j in range(i + 2, N + (i > 0)):
-            pair2 = (node_labels[j % N], node_labels[(j + 1) % N])
-            if len(set(pair1).union(pair2)) == 4:  # Ensure pairs have non-overlapping elements
-                quad = tuple(sorted([pair1, pair2]))
+    for i in range(N-2):
+        j = (i+1)%N
+        for k in range(j + 1, N):
+            l = (k+1)%N
+            # Select elements by their indices
+            quad = (node_labels[i], node_labels[j], node_labels[k], node_labels[l])
+            if len(set(quad)) == 4:  # Ensure pairs have non-overlapping elements
+                # Add to set to ensure uniqueness
                 quads.add(quad)
-    quads = [list(quad) for quad in sorted(quads)]
 
     assert sorted(quads) == sorted(expected_quads), "Expected quads for n_elements={0} did not match".format(N)
 	    

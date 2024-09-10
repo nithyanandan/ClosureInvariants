@@ -1,3 +1,24 @@
+From 00091b6 (scalar):
+=====================
+
+In scalarInvariants.py,
+
+(*) Add function covariant() and covariants_multiple_loops()
+along the same lines as advariant() and 
+advariants_multiple_loops(), respectively, along with 
+docstring and examples. 
+
+In graphUtils.py,
+
+(*) Update return type in generate_independent_quads() to be 
+compatible with return type in generate_independent_triads().
+Update docstring accordingly.
+
+In test_graphUtils.py,
+
+(*) Update test_generate_independent_triads() to be 
+compatible with the change above.
+
 From 3f686fd (scalar):
 =====================
 

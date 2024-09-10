@@ -158,32 +158,32 @@ def generate_independent_quads(ids: List[Union[int, str]]) -> List[List[Tuple[Un
 
     Returns
     -------
-    List[List[Tuple[Union[int, str], Union[int, str]]]]
-        A list of independent quads, where each quad is a list of two 
-        2-element tuples.
+    List[Tuple[Union[int, str], Union[int, str], Union[int, str], Union[int, str]]]
+        A list of independent quads, where each quad is a 4-element tuple.
     
     Examples
     --------
     >>> ids = [0, 1, 2, 3, 4]
-    >>> generate_quads(ids)
-    [[(0, 1), (2, 3)], [(0, 1), (3, 4)], [(1, 2), (3, 4)], [(1, 2), (4, 0)], [(2, 3), (4, 0)]]
+    >>> generate_independent_quads_v2(ids)
+    [(0, 1, 2, 3), (0, 1, 3, 4), (1, 2, 3, 4), (1, 2, 4, 0), (2, 3, 4, 0)]
     
     >>> ids = ['a', 'b', 'c', 'd', 'e']
-    >>> generate_quads(ids)
-    [[('a', 'b'), ('c', 'd')], [('a', 'b'), ('d', 'e')], [('b', 'c'), ('d', 'e')], [('b', 'c'), ('e', 'a')], [('c', 'd'), ('e', 'a')]]
+    >>> generate_independent_quads_v2(ids)
+    [('a', 'b', 'c', 'd'), ('a', 'b', 'd', 'e'), ('b', 'c', 'd', 'e'), ('b', 'c', 'e', 'a'), ('c', 'd', 'e', 'a')]
     """
     # Generate cyclic adjacent pairs
     pairs = [(ids[i], ids[(i + 1) % len(ids)]) for i in range(len(ids))]
     
-    quads = []
+    quads = set()
     # Iterate through all combinations of pairs and check for independence
     for pair1, pair2 in itertools.combinations(pairs, 2):
         # Ensure pairs do not have overlapping elements
         if set(pair1).isdisjoint(pair2):
-            # Sort the pairs to avoid duplicate quads in different orders
-            quad = [tuple(pair1), tuple(pair2)]
-            quads.append(sorted(quad))
+            # Keep the pairs in their original order and combine them into a tuple
+            quad = pair1 + pair2
+            # Use a tuple that maintains the order of the original pairs
+            quads.add(tuple(quad))
 
-    # Convert the set to a sorted list of lists
+    # Return a sorted list of quads (tuples) without altering the internal order of pairs 
     return sorted(quads)
 

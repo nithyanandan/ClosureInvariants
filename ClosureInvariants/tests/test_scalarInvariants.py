@@ -1,5 +1,7 @@
 import pytest
+
 import numpy as NP
+
 from .. import graphUtils as GU
 from .. import scalarInvariants as SI
 

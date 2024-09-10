@@ -1,5 +1,6 @@
-import numpy as NP
 from typing import List, Tuple, Union, Optional
+
+import numpy as NP
 
 def corrupt_visibilities(vis: NP.ndarray, g_a: NP.ndarray, g_b: NP.ndarray) -> NP.ndarray:
     """
@@ -392,3 +393,128 @@ def closurePhases_from_advariants(advariants: NP.ndarray) -> NP.ndarray:
     closure_phases = NP.angle(advariants)
 
     return closure_phases
+
+def covariant(corrs_list: Union[List[List[NP.ndarray]], List[NP.ndarray]]) -> NP.ndarray:
+    """
+    Construct the covariant from a list of even-numbered correlations forming a closed even-edged loop.
+
+    Parameters
+    ----------
+    corrs_list : List or numpy.ndarray of numpy.ndarray
+        List of even-numbered correlations forming the edges of a closed even-edged loop.
+
+    Returns
+    -------
+    numpy.ndarray
+        Covariant constructed from the list of correlations.
+
+    Raises
+    ------
+    TypeError
+        If the input corrs_list is not a list.
+        If any element of corrs_list is not a numpy array.
+    ValueError
+        If the input corrs_list does not have an even number of elements.
+        If the shapes of numpy arrays in corrs_list are not identical.
+
+    Notes
+    -----
+    The covariant is constructed by taking the product of correlations from an even-numbered list of 
+    correlations that forms the edges of a closed even-edged loop. Every alternate correlation, starting from 
+    the first element, undergoes the hat operation, which involves taking the inverse conjugate.
+
+    Examples
+    --------
+    >>> import numpy as NP
+    >>> from your_module import covariant
+    >>> corrs_list = [NP.array([2j, 3+2j, 1-4j, 2, 1, 3, 2]),
+    ...               NP.array([2+1j, 1-2j, 3+4j, 5, 6, 7, 8]),
+    ...               NP.array([4-1j, 2+3j, 1, 0, 1, 3, 5]),
+    ...               NP.array([1+1j, 2, 3-1j, 4, 5, 6, 7])]
+    >>> covariant(corrs_list)
+    """
+
+    if not isinstance(corrs_list, (list, NP.ndarray)):
+        raise TypeError('Input corrs_list must be a list or numpy array')
+    nedges = len(corrs_list)
+    if nedges % 2 != 0:
+        raise ValueError('Input corrs_list must be a list made of even number of elements for a covariant to be constructed')
+
+    covar = None
+    for edgei, corr in enumerate(corrs_list):
+        if edgei == 0:
+            covar = NP.copy(corr)
+        else:
+            if edgei % 2 == 0:
+                covar = covar * corr
+            else:
+                covar = covar / corr.conj()
+
+    return covar
+
+def covariants_multiple_loops(corrs_lol: List[List[NP.ndarray]]) -> NP.ndarray:
+    """
+    Calculate covariants on multiple loops from a list of lists of even-numbered correlations forming closed even-edged loops.
+
+    Parameters
+    ----------
+    corrs_lol : List of lists of numpy.ndarray
+        List of lists of even-numbered correlations forming closed even-edged loops.
+
+    Returns
+    -------
+    numpy.ndarray
+        Covariants calculated for each loop in the input list.
+
+    Raises
+    ------
+    TypeError
+        If the input corrs_lol is not a list of lists.
+    ValueError
+        If the input corrs_lol contains invalid shapes of numpy arrays.
+        If the input corrs_lol is empty.
+
+    Notes
+    -----
+    This function calculates covariants on multiple loops by calling the covariant function for each loop in the input 
+    list of lists of even-numbered correlations. The hat operation, which involves taking the inverse of the conjugate, 
+    is applied during the covariant calculation.
+
+    Examples
+    --------
+    >>> import numpy as NP
+    >>> from your_module import covariants_multiple_loops
+    >>> cl1 = [NP.array([1+2j, 3+4j, 5+6j, 7+8j, 9, 10, 11]),
+    ...        NP.array([2+1j, 4+3j, 6+5j, 8+7j, 12, 13, 14]),
+    ...        NP.array([3+2j, 5+4j, 7+6j, 9+8j, 15, 16, 17]),
+    ...        NP.array([4+3j, 6+5j, 8+7j, 10+9j, 18, 19, 20])]
+    >>> cl2 = [NP.array([11+12j, 13+14j, 15+16j, 17+18j, 21, 22, 23]),
+    ...        NP.array([12+11j, 14+13j, 16+15j, 18+17j, 24, 25, 26]),
+    ...        NP.array([13+12j, 15+14j, 17+16j, 19+18j, 27, 28, 29]),
+    ...        NP.array([14+13j, 16+15j, 18+17j, 20+19j, 30, 31, 32])]
+    >>> cl3 = [NP.array([21+22j, 23+24j, 25+26j, 27+28j, 33, 34, 35]),
+    ...        NP.array([22+21j, 24+23j, 26+25j, 28+27j, 36, 37, 38]),
+    ...        NP.array([23+22j, 25+24j, 27+26j, 29+28j, 39, 40, 41]),
+    ...        NP.array([24+23j, 26+25j, 28+27j, 30+29j, 42, 43, 44])]
+    >>> cl4 = [NP.array([31+32j, 33+34j, 35+36j, 37+38j, 45, 46, 47]),
+    ...        NP.array([32+31j, 34+33j, 36+35j, 38+37j, 48, 49, 50]),
+    ...        NP.array([33+32j, 35+34j, 37+36j, 39+38j, 51, 52, 53]),
+    ...        NP.array([34+33j, 36+35j, 38+37j, 40+39j, 54, 55, 56])]
+    >>> cl5 = [NP.array([41+42j, 43+44j, 45+46j, 47+48j, 57, 58, 59]),
+    ...        NP.array([42+41j, 44+43j, 46+45j, 48+47j, 60, 61, 62]),
+    ...        NP.array([43+42j, 45+44j, 47+46j, 49+48j, 63, 64, 65]),
+    ...        NP.array([44+43j, 46+45j, 48+47j, 50+49j, 66, 67, 68])]
+    >>> corrs_lol = [cl1, cl2, cl3, cl4, cl5]
+    >>> covariants_multiple_loops(corrs_lol)
+    """
+    if not isinstance(corrs_lol, list):
+        raise TypeError('Input corrs_lol must be a list of lists')
+    if not all(isinstance(corrs_list, list) for corrs_list in corrs_lol):
+        raise TypeError('Each element of corrs_lol must be a list')
+    
+    covars_list = []
+    for ind, corrs_list in enumerate(corrs_lol):
+        covars_list += [covariant(corrs_list)]
+    
+    # Move the loop axis to the first from the end
+    return NP.moveaxis(NP.array(covars_list), 0, -1)

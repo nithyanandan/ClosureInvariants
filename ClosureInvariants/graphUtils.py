@@ -1,7 +1,9 @@
-from typing import Union
+import itertools
+from typing import List, Tuple, Union
+
 import numpy as NP
 
-def generate_triangles(ids, baseid):
+def generate_triads(ids, baseid):
     """
     Generate triads of IDs based on a base ID.
 
@@ -136,3 +138,52 @@ def repack_real_to_realimag(inparr: NP.ndarray, arrtype: str = 'matrix') -> NP.n
     if arrtype == 'matrix':
         outarr = outarr.reshape(inshape[:-1] + (-1, 2, 2))  # Convert from (...,4M) complex to (...,M,2,2) complex
     return outarr
+
+def generate_independent_quads(ids: List[Union[int, str]]) -> List[List[Tuple[Union[int, str], Union[int, str]]]]:
+    """
+    Generate a list of independent quads from a list of IDs by forming pairs 
+    of adjacent elements in a cyclic manner and concatenating pairs with 
+    non-overlapping elements. 
+
+    Algorithm based on L. Blackburn et al. (2020)
+
+    Each quad is represented as a list of two 2-element tuples. Duplicate 
+    quads with different orders, such as [(0, 1), (2, 3)] and [(2, 3), (0, 1)], 
+    are removed.
+
+    Parameters
+    ----------
+    ids : List[Union[int, str]]
+        A list of IDs which can be integers or strings.
+
+    Returns
+    -------
+    List[List[Tuple[Union[int, str], Union[int, str]]]]
+        A list of independent quads, where each quad is a list of two 
+        2-element tuples.
+    
+    Examples
+    --------
+    >>> ids = [0, 1, 2, 3, 4]
+    >>> generate_quads(ids)
+    [[(0, 1), (2, 3)], [(0, 1), (3, 4)], [(1, 2), (3, 4)], [(1, 2), (4, 0)], [(2, 3), (4, 0)]]
+    
+    >>> ids = ['a', 'b', 'c', 'd', 'e']
+    >>> generate_quads(ids)
+    [[('a', 'b'), ('c', 'd')], [('a', 'b'), ('d', 'e')], [('b', 'c'), ('d', 'e')], [('b', 'c'), ('e', 'a')], [('c', 'd'), ('e', 'a')]]
+    """
+    # Generate cyclic adjacent pairs
+    pairs = [(ids[i], ids[(i + 1) % len(ids)]) for i in range(len(ids))]
+    
+    quads = []
+    # Iterate through all combinations of pairs and check for independence
+    for pair1, pair2 in itertools.combinations(pairs, 2):
+        # Ensure pairs do not have overlapping elements
+        if set(pair1).isdisjoint(pair2):
+            # Sort the pairs to avoid duplicate quads in different orders
+            quad = [tuple(pair1), tuple(pair2)]
+            quads.append(sorted(quad))
+
+    # Convert the set to a sorted list of lists
+    return sorted(quads)
+

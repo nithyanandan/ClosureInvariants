@@ -1,3 +1,39 @@
+From 8f4e551 (scalar):
+=====================
+
+In graphUtils.py,
+
+(*) Add function generate_independent_quads() with docstring 
+and type hinting to generate a list of independent quads 
+(*) Rename function generate_triangles() to generate_triads()
+(*) Update imports
+
+In tests/test_scalarInvariants.py,
+
+(*) Rename use of GU.generate_triangles() to GU.generate_triads()
+
+In tests/test_vectorInvariants.py,
+
+(*) Rename use of GU.generate_triangles() to GU.generate_triads()
+
+In test/test_graphUtils.py,
+
+(*) Add test_generate_independent_quads() by parametrizing 
+node_labels
+(*) Replace all occurrences of GU.generate_triangles() with 
+GU.generate_triads()
+
+In examples/scalar_invariants.ipynb,
+
+(*) Add code to generate independent quads
+(*) Replace all occurrences of GU.generate_triangles() with 
+GU.generate_triads()
+
+In examples/vector_invariants.ipynb,
+
+(*) Replace all occurrences of GU.generate_triangles() with 
+GU.generate_triads()
+
 From 736d29c (scalar):
 =====================
 

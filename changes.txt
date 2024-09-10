@@ -1,3 +1,36 @@
+From 3f686fd (scalar):
+=====================
+
+In graphUtils.py,
+
+(*) rename function generate_triads() to 
+generate_independent_triads() and update docstring accordingly 
+
+In tests/test_scalarInvariants.py,
+
+(*) Rename use of GU.generate_triads() to 
+GU.generate_independent_triads()
+
+In tests/test_vectorInvariants.py,
+
+(*) Rename use of GU.generate_triads() to 
+GU.generate_independent_triads()
+
+In test/test_graphUtils.py,
+
+(*) Replace all occurrences of GU.generate_triads() with 
+GU.generate_independent_triads()
+
+In examples/scalar_invariants.ipynb,
+
+(*) Replace all occurrences of GU.generate_triads() with 
+GU.generate_independent_triads()
+
+In examples/vector_invariants.ipynb,
+
+(*) Replace all occurrences of GU.generate_triads() with 
+GU.generate_independent_triads()
+
 From 8f4e551 (scalar):
 =====================
 

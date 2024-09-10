@@ -90,7 +90,7 @@ def test_scalar_invariance(copol_xc, copol_complex_gains, example_ids, baseid_in
     bl_axis = -1
     element_axis = -1
     element_pairs = [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
-    triads_indep = GU.generate_triads(example_ids, baseid_ind)
+    triads_indep = GU.generate_independent_triads(example_ids, baseid_ind)
     copol_xc_lol = SI.corrs_list_on_loops(copol_xc, element_pairs, triads_indep, bl_axis=bl_axis)
     advars_in = SI.advariants_multiple_loops(copol_xc_lol)
 
@@ -116,7 +116,7 @@ def test_point_scalar_invariance(copol_point_xc, copol_complex_gains, example_id
     bl_axis = -1
     element_axis = -1
     element_pairs = [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
-    triads_indep = GU.generate_triads(example_ids, baseid_ind)
+    triads_indep = GU.generate_independent_triads(example_ids, baseid_ind)
 
     normax = -1
     normwts = 'max'
@@ -138,7 +138,7 @@ def test_point_closure_phases_from_advariants(copol_point_xc, copol_complex_gain
     bl_axis = -1
     element_axis = -1
     element_pairs = [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
-    triads_indep = GU.generate_triads(example_ids, baseid_ind)
+    triads_indep = GU.generate_independent_triads(example_ids, baseid_ind)
 
     prefactor_gains = NP.take(copol_complex_gains, NP.array(element_pairs)[:,0], axis=element_axis) # A collection of g_a
     postfactor_gains = NP.take(copol_complex_gains, NP.array(element_pairs)[:,1], axis=element_axis) # A collection of g_b

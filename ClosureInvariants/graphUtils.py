@@ -3,9 +3,9 @@ from typing import List, Tuple, Union
 
 import numpy as NP
 
-def generate_triads(ids, baseid):
+def generate_independent_triads(ids, baseid):
     """
-    Generate triads of IDs based on a base ID.
+    Generate independent triads of IDs based on a base ID.
 
     Parameters
     ----------
@@ -30,7 +30,7 @@ def generate_triads(ids, baseid):
 
     Notes
     -----
-    This function generates triads of IDs by fixing one ID (baseid) and forming all possible combinations of two other IDs from the input list of IDs.
+    This function generates independent triads of IDs by fixing one ID (baseid) and forming all possible combinations of two other IDs from the input list of IDs.
 
     Examples
     --------

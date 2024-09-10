@@ -133,7 +133,7 @@ def test_invariance(pol_xc, pol_complex_gains, example_ids, baseid_ind, polaxes)
     bl_axis = -3
     element_axis = -3
     element_pairs = [(example_ids[i], example_ids[j]) for i in range(len(example_ids)) for j in range(i + 1, len(example_ids))]
-    triads_indep = GU.generate_triads(example_ids, baseid_ind)
+    triads_indep = GU.generate_independent_triads(example_ids, baseid_ind)
     pol_xc_lol = VI.corrs_list_on_loops(pol_xc, element_pairs, triads_indep, bl_axis=bl_axis, pol_axes=polaxes)
     advars_in = VI.advariants_multiple_loops(pol_xc_lol)
     z4v_in = VI.vector_from_advariant(advars_in)

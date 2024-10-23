@@ -336,7 +336,10 @@ def invariants_from_advariants_method1(advariants: NP.ndarray,
             realvalued_normwts = normwts
     
     # Calculate the normalization factor
-    normalization_factor = NP.sum(NP.abs(realvalued_advariants * realvalued_normwts)**normpower, axis=normaxis, keepdims=True)**(1/normpower)
+    if normpower == 0:
+        normalization_factor = 1
+    else:
+        normalization_factor = NP.sum(NP.abs(realvalued_advariants * realvalued_normwts)**normpower, axis=normaxis, keepdims=True)**(1/normpower)
 
     # Calculate the invariants
     invariants = realvalued_advariants / normalization_factor

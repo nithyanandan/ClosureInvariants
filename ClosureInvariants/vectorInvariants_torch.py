@@ -1,5 +1,4 @@
 import numpy as NP
-from astroutils import mathops_torch as MO
 from typing import List, Tuple, Union
 import torch
 
@@ -54,7 +53,7 @@ def corrupt_visibilities(vis: torch.Tensor, g_a: torch.Tensor, g_b: torch.Tensor
         raise ValueError('The last two axes of g_a must have shape (2,2)')
     if g_b.shape[-2:] != (2,2):
         raise ValueError('The last two axes of g_b must have shape (2,2)')
-    return g_a @ vis @ MO.hermitian(g_b, axes=pol_axes)
+    return g_a @ vis @ hermitian(g_b, axes=pol_axes)
 
 
 def corrs_list_on_loops(corrs: torch.Tensor, 
@@ -164,7 +163,7 @@ def corrs_list_on_loops(corrs: torch.Tensor,
                 if bl_ind.size == 0:
                     raise IndexError('Specified antenna pair ({0:0d},{1:0d}) not found in input ant_pairs'.format(loop[i], loop[(i + 1) % loop.size]))
                 elif bl_ind.size == 1: # Take Hermitian
-                    corr = MO.hermitian(torch.index_select(corrs, bl_axis, torch.tensor(bl_ind)), axes=pol_axes)
+                    corr = hermitian(torch.index_select(corrs, bl_axis, torch.tensor(bl_ind)), axes=pol_axes)
                 elif bl_ind.size > 1:
                     raise IndexError('{0:0d} indices found for antenna pair ({1:0d},{2:0d}) in input ant_pairs'.format(bl_ind, loop[i], loop[(i + 1) % loop.size]))
             elif bl_ind.size > 1:
@@ -275,7 +274,7 @@ def advariant(corrs_list: Union[List[List[torch.Tensor]], List[torch.Tensor]], p
             if edgei % 2 == 0:
                 advar = advar @ corr
             else:
-                advar = advar @ MO.hat(corr, axes=inv_axes)
+                advar = advar @ hat(corr, axes=inv_axes)
 
     return advar
 
@@ -589,3 +588,131 @@ def remove_scaling_factor_minkoski_dots(mdp: torch.Tensor, wts: torch.Tensor = N
     ci = mdp / torch.sqrt(torch.sum((wts*mdp)**2, dim=-1, keepdim=True))
 
     return ci
+
+
+################################################################################
+
+def hermitian(inparr: torch.Tensor, axes: Optional[Union[List[int], Tuple[int, int], torch.Tensor]] = (-2, -1)) -> torch.Tensor:
+    """
+    Return the Hermitian of the input array along specified axes.
+
+    Parameters
+    ----------
+    inparr : torch.Tensor
+        Input array to be Hermitian-transposed.
+    axes : {tuple, list, torch.Tensor}, optional
+        Two-element sequence denoting which two axes are to be Hermitian-transposed.
+        Default is (-2, -1).
+
+    Returns
+    -------
+    torch.Tensor
+        Hermitian-transposed array.
+
+    Raises
+    ------
+    TypeError
+        If inparr is not a torch tensor or if axes is not a list, tuple, or torch tensor.
+    ValueError
+        If axes is not a two-element list, tuple, or torch tensor or if the two entries in axes are the same.
+
+    Notes
+    -----
+    The Hermitian of an array is obtained by swapping the specified axes and taking the complex conjugate.
+
+    Examples
+    --------
+    >>> import torch
+    >>> arr = torch.tensor([[1, 2 + 1j], [3 - 2j, 4]], dtype=torch.complex64)
+    >>> hermitian(arr, axes=(0, 1))
+    tensor([[1.-0.j, 3.+2.j],
+            [2.-1.j, 4.-0.j]])
+    """
+    # axes denotes which two axes are to be Hermitian-transposed
+    if not isinstance(inparr, torch.Tensor):
+        raise TypeError('Input array inparr must be a torch tensor')
+    if inparr.ndim == 1:
+        inparr = inparr.reshape(1, -1)
+
+    if axes is None:
+        axes = torch.tensor([-2, -1])
+    if not isinstance(axes, (list, tuple, torch.Tensor)):
+        raise TypeError('Input axes must be a list, tuple, or torch tensor')
+    axes = torch.tensor(axes).flatten()
+    if axes.size(0) != 2:
+        raise ValueError('Input axes must be a two-element list, tuple, or torch tensor')
+    negind = torch.where(axes < 0)[0]
+    if negind.size(0) > 0:
+        axes[negind] += inparr.ndim  # Convert negative axis numbers to positive
+    if axes[0] == axes[1]:
+        raise ValueError('The two entries in axes cannot be the same')
+
+    return inparr.transpose(axes[0], axes[1]).conj()
+
+################################################################################
+
+def hat(inparr: torch.Tensor, axes: Optional[Union[List[int], Tuple[int, int], torch.Tensor]] = None) -> torch.Tensor:
+    """
+    Compute the inverse of the Hermitian operation along specified axes (hat operation).
+
+    Parameters
+    ----------
+    inparr : torch.Tensor
+        Input array to be inversed with the Hermitian operation.
+    axes : Union[list, tuple, torch.Tensor], optional
+        Two-element sequence denoting which two axes are to be Hermitian-transposed.
+        If None, defaults to torch.tensor([-2, -1]).
+
+    Returns
+    -------
+    torch.Tensor
+        Result of the hat operation, the inverse of the Hermitian-transposed array.
+
+    Raises
+    ------
+    TypeError
+        If inparr is not a torch tensor.
+    ValueError
+        If axes is not a two-element list, tuple, or torch tensor or if the two entries in axes are the same.
+
+    Notes
+    -----
+    The hat operation is the inverse of the Hermitian operation. It involves computing the Hermitian-transposed array,
+    taking the inverse along the last two axes using torch.linalg.inv(), and optionally rearranging the axes.
+
+    Examples
+    --------
+    >>> import torch
+    >>> arr = torch.tensor([[1, 2 + 1j], [3 - 2j, 4]], dtype=torch.complex64)
+    >>> hat_result = hat(arr, axes=(0, 1))
+    """
+
+    if not isinstance(inparr, torch.Tensor):
+        raise TypeError('Input array inparr must be a torch tensor')
+    if inparr.ndim == 1:
+        inparr = inparr.reshape(1, -1)
+
+    if axes is None:
+        axes = torch.tensor([-2, -1])
+    if not isinstance(axes, (list, tuple, torch.Tensor)):
+        raise TypeError('Input axes must be a list, tuple, or torch tensor')
+    axes = torch.tensor(axes).flatten()
+    if axes.size(0) != 2:
+        raise ValueError('Input axes must be a two-element list, tuple, or torch tensor')
+    negind = torch.where(axes < 0)[0]
+    if negind.size(0) > 0:
+        axes[negind] += inparr.ndim  # Convert negative axis numbers to positive
+    if axes[0] == axes[1]:
+        raise ValueError('The two entries in axes cannot be the same')
+
+    inparr_H = hermitian(inparr, axes=axes)
+    invaxes = inparr.ndim - 2 + torch.arange(2)  # For inverse, they must be the last two axes because of torch.linalg.inv() requirements
+    if not torch.equal(torch.sort(axes)[0], invaxes):  # the axes are not at the end, so move them for taking inverse
+        inparr_H = inparr_H.permute(*[i for i in range(inparr_H.ndim) if i not in axes], *invaxes)
+    if inparr_H.shape[-1] != inparr_H.shape[-2]:
+        raise ValueError('The axes of inversion must be square in shape')
+    inparr_IH = torch.linalg.inv(inparr_H)
+    if not torch.equal(torch.sort(axes)[0], invaxes):  # the axes were moved to the end, so move them back
+        inparr_IH = inparr_IH.permute(*[i for i in range(inparr_IH.ndim) if i not in invaxes], *axes)
+
+    return inparr_IH

@@ -1,5 +1,5 @@
 import numpy as NP
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 import torch
 
 def corrupt_visibilities(vis: torch.Tensor, g_a: torch.Tensor, g_b: torch.Tensor, pol_axes: torch.Tensor = None) -> torch.Tensor:

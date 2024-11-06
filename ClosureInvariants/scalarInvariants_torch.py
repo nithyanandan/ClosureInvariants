@@ -255,7 +255,7 @@ def advariants_multiple_loops(corrs_lol: List[List[torch.Tensor]]) -> torch.Tens
     for ind, corrs_list in enumerate(corrs_lol):
         advars_list += [advariant(corrs_list)]
 
-    return torch.moveaxis(torch.stack(advars_list), 0, -1).squeeze()  # Move the loop axis to first from the end
+    return torch.moveaxis(torch.stack(advars_list), 0, -1).squeeze(dim=-2)  # Move the loop axis to first from the end
 
 def invariants_from_advariants_method1(advariants: torch.Tensor, 
                                        normaxis: int, 

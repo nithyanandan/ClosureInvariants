@@ -1,3 +1,11 @@
+From 118914d (pr1-review):
+=========================
+
+(*) Rename scalar_invariants.ipynb to 
+scalar_invariants_torch.ipynb
+(*) Rename vector_invariants.ipynb to 
+vector_invariants_torch.ipynb
+
 From dd96719 (scalar):
 =====================
 

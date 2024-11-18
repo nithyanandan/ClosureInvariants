@@ -1,3 +1,10 @@
+From 2ec7d35 (pr1-review):
+=========================
+
+In examples/
+(*) Add scalar_invariants_numpy.ipynb to repo 
+(*) Add vector_invariants_numpy.ipynb to repo 
+
 From 118914d (pr1-review):
 =========================
 

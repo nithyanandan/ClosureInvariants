@@ -125,6 +125,7 @@ def corrs_list_on_loops(corrs: torch.Tensor,
     corrs_lol = []
     for loopi, loop in enumerate(loops):
         corrs_loop = []
+        no_loop = False
         for i in range(len(loop)):
             bl_ind = NP.where((ant_pairs[:, 0] == loop[i]) & (ant_pairs[:, 1] == loop[(i + 1) % loop.size]))[0]
             if bl_ind.size == 1:
@@ -132,6 +133,8 @@ def corrs_list_on_loops(corrs: torch.Tensor,
             elif bl_ind.size == 0:  # Check for reversed pair
                 bl_ind = NP.where((ant_pairs[:, 0] == loop[(i + 1) % loop.size]) & (ant_pairs[:, 1] == loop[i]))[0]
                 if bl_ind.size == 0:
+                    no_loop = True
+                    break # Pair not found, possibly loop not possible with the given dataset
                     raise IndexError('Specified antenna pair ({0},{1}) not found in input ant_pairs'.format(loop[i], loop[(i + 1) % loop.size]))
                 elif bl_ind.size == 1:  # Take conjugate
                     corr = torch.index_select(corrs.conj(), bl_axis, torch.tensor(bl_ind))
@@ -139,10 +142,11 @@ def corrs_list_on_loops(corrs: torch.Tensor,
                     raise IndexError('{0} indices found for antenna pair ({1},{2}) in input ant_pairs'.format(bl_ind.size, loop[i], loop[(i + 1) % loop.size]))
             elif bl_ind.size > 1:
                 raise IndexError('{0} indices found for antenna pair ({1},{2}) in input ant_pairs'.format(bl_ind.size, loop[i], loop[(i + 1) % loop.size]))
-        
+            
             corr = torch.index_select(corr, bl_axis, torch.tensor([0]))
             corrs_loop.append(corr)
-        corrs_lol.append(corrs_loop)
+        if not no_loop:
+            corrs_lol.append(corrs_loop)
         
     return corrs_lol
 

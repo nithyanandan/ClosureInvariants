@@ -319,6 +319,11 @@ def invariants_from_advariants_method1(advariants: torch.Tensor,
 
     # Split real and imaginary parts and concatenate them
     if torch.is_complex(advariants):
+        # realvalued_advariants_shape = torch.tensor(advariants.shape)
+        # realvalued_advariants_shape[-1] *= 2
+        # realvalued_advariants = torch.zeros(tuple(realvalued_advariants_shape))
+        # realvalued_advariants[:, :, ::2] = advariants.real
+        # realvalued_advariants[:, :, 1::2] = advariants.imag
         realvalued_advariants = torch.cat((advariants.real, advariants.imag), dim=-1)
     else:
         realvalued_advariants = advariants.clone()

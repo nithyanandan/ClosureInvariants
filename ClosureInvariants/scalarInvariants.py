@@ -318,7 +318,12 @@ def invariants_from_advariants_method1(advariants: NP.ndarray,
 
     # Split real and imaginary parts and concatenate them
     if NP.iscomplexobj(advariants):
-        realvalued_advariants = NP.concatenate((advariants.real, advariants.imag), axis=-1)
+        realvalued_advariants_shape = advariants.shape
+        realvalued_advariants_shape[-1] *= 2
+        realvalued_advariants = NP.zeros(tuple(realvalued_advariants_shape))
+        realvalued_advariants[:, :, ::2] = advariants.real
+        realvalued_advariants[:, :, 1::2] = advariants.imag
+        # realvalued_advariants = NP.concatenate((advariants.real, advariants.imag), axis=-1)
     else:
         realvalued_advariants = NP.copy(advariants)
     

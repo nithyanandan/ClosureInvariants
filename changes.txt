@@ -1,3 +1,9 @@
+From b8ad97f (main):
+===================
+
+In README.rst, 
+(*) Add some basic instructions on package download, install, and usage
+
 From 2ec7d35 (pr1-review):
 =========================
 

@@ -165,6 +165,8 @@ def corrs_list_on_loops(corrs: torch.Tensor,
         if len(corrs_loop) == n:
             corrs_lol.append(corrs_loop)
 
+    return corrs_lol
+
 
 def advariant(corrs_list: Union[List[List[torch.Tensor]], List[torch.Tensor]]) -> torch.Tensor:
     """

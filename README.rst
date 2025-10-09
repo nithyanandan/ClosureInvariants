@@ -11,6 +11,8 @@ https://github.com/nithyanandan/ClosureInvariants
 Installation
 ------------
 
+AstroUtils (https://github.com/nithyanandan/AstroUtils) is a dependency, so ensure it is installed first.
+
 To install ClosureInvariants, first clone the repository:
 
 .. code-block:: bash

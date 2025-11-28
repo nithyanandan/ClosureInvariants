@@ -109,6 +109,9 @@ def corrs_list_on_loops(corrs: torch.Tensor,
      [[correlation4], [correlation5], [correlation6]]]
     """
 
+
+    device = corrs.device
+    
     if not isinstance(ant_pairs, (list, NP.ndarray)):
         raise TypeError('Input ant_pairs must be a list or numpy array')
     ant_pairs = NP.array(ant_pairs)
@@ -151,28 +154,48 @@ def corrs_list_on_loops(corrs: torch.Tensor,
     if tmpind.size().numel() > 0:
         pol_axes[tmpind] += corrs.ndim # Convert to a positive value for the polarization axes
         
+
+
+    # Map antenna label to integer index
+    ant_map = {}
+    for pair in ant_pairs:
+        for ant in pair:
+            if ant not in ant_map:
+                ant_map[ant] = len(ant_map)
+
+    # Lookup pair -> index and conjugation flag
+    pair_lookup = {}
+    for idx, (a, b) in enumerate(ant_pairs):
+        a_idx, b_idx = ant_map[a], ant_map[b]
+        pair_lookup[(a_idx, b_idx)] = (idx, False)
+        pair_lookup[(b_idx, a_idx)] = (idx, True)
+
+    # Convert loops to integer indices, skip missing
+    loops_idx = []
+    for loop in loops:
+        try:
+            loops_idx.append([ant_map[a] for a in loop])
+        except KeyError:
+            continue
+
     corrs_lol = []
-    for loopi, loop in enumerate(loops):
+    for loop in loops_idx:
         corrs_loop = []
-        for i in range(len(loop)):
-            bl_ind = NP.where((ant_pairs[:, 0] == loop[i]) & (ant_pairs[:, 1] == loop[(i + 1) % loop.size]))[0]
-            if bl_ind.size == 1:
-                corr = torch.clone(torch.index_select(corrs, bl_axis, torch.tensor(bl_ind)))
-            elif bl_ind.size == 0: # Check for reversed pair
-                bl_ind = NP.where((ant_pairs[:, 0] == loop[(i + 1) % loop.size]) & (ant_pairs[:, 1] == loop[i]))[0]
-                if bl_ind.size == 0:
-                    raise IndexError('Specified antenna pair ({0:0d},{1:0d}) not found in input ant_pairs'.format(loop[i], loop[(i + 1) % loop.size]))
-                elif bl_ind.size == 1: # Take Hermitian
-                    corr = hermitian(torch.index_select(corrs, bl_axis, torch.tensor(bl_ind)), axes=pol_axes)
-                elif bl_ind.size > 1:
-                    raise IndexError('{0:0d} indices found for antenna pair ({1:0d},{2:0d}) in input ant_pairs'.format(bl_ind, loop[i], loop[(i + 1) % loop.size]))
-            elif bl_ind.size > 1:
-                raise IndexError('{0:0d} indices found for antenna pair ({1:0d},{2:0d}) in input ant_pairs'.format(bl_ind, loop[i], loop[(i + 1) % loop.size]))
-        
-            corr = torch.index_select(corr, bl_axis, torch.tensor([0]))
-            corrs_loop += [corr]
-        corrs_lol += [corrs_loop]
-        
+        n = len(loop)
+        for i in range(n):
+            a, b = loop[i], loop[(i + 1) % n]
+            lookup = pair_lookup.get((a, b))
+            if lookup is not None:
+                idx, conj = lookup
+                corr = corrs.index_select(bl_axis, torch.tensor([idx], device=device))
+                if conj:
+                    corr = hermitian(corr, axes=pol_axes)
+                corrs_loop.append(corr)
+            else:
+                break
+
+        if len(corrs_loop) == n:
+            corrs_lol.append(corrs_loop)
     return corrs_lol
 
 def advariant(corrs_list: Union[List[List[torch.Tensor]], List[torch.Tensor]], pol_axes: Union[List[int], tuple] = (-2, -1)) -> torch.Tensor:

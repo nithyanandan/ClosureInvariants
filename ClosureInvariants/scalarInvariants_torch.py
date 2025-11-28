@@ -93,6 +93,8 @@ def corrs_list_on_loops(corrs: torch.Tensor,
      [[correlation4], [correlation5], [correlation6]]]
     """
 
+    device = corrs.device
+    
     if not isinstance(ant_pairs, (list, NP.ndarray)):
         raise TypeError('Input ant_pairs must be a list or numpy array')
     ant_pairs = NP.array(ant_pairs)
@@ -122,29 +124,49 @@ def corrs_list_on_loops(corrs: torch.Tensor,
     elif loops.ndim != 2:
         raise ValueError('Input loops contains invalid shape')
 
+
+    # Map antenna label to integer index
+    ant_map = {}
+    for pair in ant_pairs:
+        for ant in pair:
+            if ant not in ant_map:
+                ant_map[ant] = len(ant_map)
+
+    # Lookup pair -> index and conjugation flag
+    pair_lookup = {}
+    for idx, (a, b) in enumerate(ant_pairs):
+        a_idx, b_idx = ant_map[a], ant_map[b]
+        pair_lookup[(a_idx, b_idx)] = (idx, False)
+        pair_lookup[(b_idx, a_idx)] = (idx, True)
+
+    # Convert loops to integer indices, skip missing
+    loops_idx = []
+    for loop in loops:
+        try:
+            loops_idx.append([ant_map[a] for a in loop])
+        except KeyError:
+            continue
+
     corrs_lol = []
-    for loopi, loop in enumerate(loops):
+    for loop in loops_idx:
         corrs_loop = []
-        for i in range(len(loop)):
-            bl_ind = NP.where((ant_pairs[:, 0] == loop[i]) & (ant_pairs[:, 1] == loop[(i + 1) % loop.size]))[0]
-            if bl_ind.size == 1:
-                corr = torch.clone(torch.index_select(corrs, bl_axis, torch.tensor(bl_ind)))
-            elif bl_ind.size == 0:  # Check for reversed pair
-                bl_ind = NP.where((ant_pairs[:, 0] == loop[(i + 1) % loop.size]) & (ant_pairs[:, 1] == loop[i]))[0]
-                if bl_ind.size == 0:
-                    raise IndexError('Specified antenna pair ({0},{1}) not found in input ant_pairs'.format(loop[i], loop[(i + 1) % loop.size]))
-                elif bl_ind.size == 1:  # Take conjugate
-                    corr = torch.index_select(corrs.conj(), bl_axis, torch.tensor(bl_ind))
-                elif bl_ind.size > 1:
-                    raise IndexError('{0} indices found for antenna pair ({1},{2}) in input ant_pairs'.format(bl_ind.size, loop[i], loop[(i + 1) % loop.size]))
-            elif bl_ind.size > 1:
-                raise IndexError('{0} indices found for antenna pair ({1},{2}) in input ant_pairs'.format(bl_ind.size, loop[i], loop[(i + 1) % loop.size]))
-        
-            corr = torch.index_select(corr, bl_axis, torch.tensor([0]))
-            corrs_loop.append(corr)
-        corrs_lol.append(corrs_loop)
-        
+        n = len(loop)
+        for i in range(n):
+            a, b = loop[i], loop[(i + 1) % n]
+            lookup = pair_lookup.get((a, b))
+            if lookup is not None:
+                idx, conj = lookup
+                corr = corrs.index_select(bl_axis, torch.tensor(idx, device=corrs.device))
+                if conj:
+                    corr = corr.conj()
+                corrs_loop.append(corr)
+            else:
+                break
+        if len(corrs_loop) == n:
+            corrs_lol.append(corrs_loop)
+
     return corrs_lol
+
 
 def advariant(corrs_list: Union[List[List[torch.Tensor]], List[torch.Tensor]]) -> torch.Tensor:
     """

@@ -1,6 +1,7 @@
 *~
 *.pyc
 .vscode/
+.*env*
 
 # Distribution / packaging
 .Python
